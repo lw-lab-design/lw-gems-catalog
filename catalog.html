@@ -3,51 +3,191 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>LW Gems — Private Catalog</title>
+  <title>LW Private Catalog — Pear Pebble Ring</title>
   <meta name="robots" content="noindex,nofollow" />
-  <link rel="stylesheet" href="assets/css/catalog.css" />
-
-  <!-- Access gate: blocks direct access unless sessionStorage has lw_access=ok -->
-  <script src="assets/js/access.js"></script>
+  <link rel="stylesheet" href="/assets/css/catalog.css" />
 </head>
 
 <body>
   <main class="stage" aria-label="Private catalog item">
 
+    <!-- Fullscreen media viewer -->
     <section class="viewer" aria-label="Media viewer">
       <div class="media" id="mediaRoot" aria-live="polite">
 
         <!-- 5 photos -->
-        <figure class="slide is-active" data-kind="image">
-          <img src="assets/media/hero-01.jpg" alt="Pear Pebble Ring — image 1" loading="eager" decoding="async">
-        </figure>
-        <figure class="slide" data-kind="image">
-          <img src="assets/media/hero-02.jpg" alt="Pear Pebble Ring — image 2" loading="lazy" decoding="async">
-        </figure>
-        <figure class="slide" data-kind="image">
-          <img src="assets/media/hero-03.jpg" alt="Pear Pebble Ring — image 3" loading="lazy" decoding="async">
-        </figure>
-        <figure class="slide" data-kind="image">
-          <img src="assets/media/hero-04.jpg" alt="Pear Pebble Ring — image 4" loading="lazy" decoding="async">
-        </figure>
-        <figure class="slide" data-kind="image">
-          <img src="assets/media/hero-05.jpg" alt="Pear Pebble Ring — image 5" loading="lazy" decoding="async">
+        <figure class="slide is-active" aria-label="Image 1">
+          <img src="/assets/media/hero-01.jpg" alt="Pear Pebble Ring — image 1" loading="eager" decoding="async">
         </figure>
 
-        <!-- Day video -->
-        <figure class="slide" data-kind="video">
+        <figure class="slide" aria-label="Image 2">
+          <img src="/assets/media/hero-02.jpg" alt="Pear Pebble Ring — image 2" loading="lazy" decoding="async">
+        </figure>
+
+        <figure class="slide" aria-label="Image 3">
+          <img src="/assets/media/hero-03.jpg" alt="Pear Pebble Ring — image 3" loading="lazy" decoding="async">
+        </figure>
+
+        <figure class="slide" aria-label="Image 4">
+          <img src="/assets/media/hero-04.jpg" alt="Pear Pebble Ring — image 4" loading="lazy" decoding="async">
+        </figure>
+
+        <figure class="slide" aria-label="Image 5">
+          <img src="/assets/media/hero-05.jpg" alt="Pear Pebble Ring — image 5" loading="lazy" decoding="async">
+        </figure>
+
+        <!-- day video -->
+        <figure class="slide" aria-label="Day video">
           <video class="vid" controls playsinline preload="metadata">
-            <source src="assets/media/day-video.mp4" type="video/mp4">
+            <source src="/assets/media/day-video.mp4" type="video/mp4">
           </video>
         </figure>
 
         <!-- GIA report photo -->
-        <figure class="slide" data-kind="image">
-          <img src="assets/media/gia-report.jpg" alt="GIA report photo (reference image)" loading="lazy" decoding="async">
+        <figure class="slide" aria-label="GIA report image">
+          <img src="/assets/media/gia-report.jpg" alt="GIA report photo (reference image)" loading="lazy" decoding="async">
         </figure>
       </div>
 
-      <div class="nav">
-        <button class="navBtn" id="prevBtn" type="button" aria-label="Previous media">‹</button>
-        <div class="dots" id="dots" aria-label="Media position"></div>
-        <button class="navBtn" id="nextBtn" type="button" aria-label="Next media">›</button
+      <!-- Silent navigation -->
+      <div class="nav" aria-label="Media navigation">
+        <button class="navBtn" id="prevBtn" type="button" aria-label="Previous">‹</button>
+        <div class="dots" id="dots" aria-label="Position"></div>
+        <button class="navBtn" id="nextBtn" type="button" aria-label="Next">›</button>
+      </div>
+    </section>
+
+    <!-- Bottom strip: only 2 lines + button -->
+    <footer class="bottom" aria-label="Bottom strip">
+      <div class="bottomInner">
+        <div class="twoLines">
+          <div class="l1">Pear Pebble Ring · Natural diamond</div>
+          <div class="l2">Documentation-ready. Report-linked. Standards-aligned.</div>
+        </div>
+
+        <button class="openSheet" id="openSheet" type="button"
+          aria-haspopup="dialog" aria-controls="sheet" aria-expanded="false">
+          View fiche
+        </button>
+      </div>
+    </footer>
+
+    <!-- Slide-up sheet -->
+    <section class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Technical fiche" hidden>
+      <div class="sheetScrim" id="sheetScrim" aria-hidden="true"></div>
+
+      <div class="sheetPanel" role="document">
+        <header class="sheetHeader">
+          <div class="sheetTitle">
+            <div class="kicker">LW Gems · Private Catalog Fiche</div>
+            <h1>Pear Pebble Ring</h1>
+            <div class="metaRow">
+              <span class="pill">MPN: <strong>LW-2026-pear-pebble-ring</strong></span>
+              <span class="pill">Lead time: <strong>30 days</strong></span>
+            </div>
+          </div>
+
+          <button class="closeSheet" id="closeSheet" type="button" aria-label="Close">×</button>
+        </header>
+
+        <div class="sheetBody">
+
+          <!-- Pricing -->
+          <section class="card">
+            <div class="cardHead">
+              <h2>Pricing</h2>
+              <div class="seg" role="group" aria-label="Metal pricing toggle">
+                <button type="button" class="segBtn is-active"
+                  data-price="14500" data-metal="18K Rose Gold" data-weight="approx. 18 g">
+                  Rose Gold
+                </button>
+                <button type="button" class="segBtn"
+                  data-price="16944" data-metal="18K White Gold" data-weight="(weight depends on alloy + build)">
+                  White Gold
+                </button>
+              </div>
+            </div>
+
+            <div class="priceLine">
+              <div class="price" id="price">$14,500</div>
+              <div class="sub" id="priceSub">
+                18K Rose Gold · approx. 18 g<br>
+                <span class="sub2">Lead time: 30 days</span>
+              </div>
+            </div>
+
+            <div class="fineprint">
+              Prices shown in USD. Final quote may vary with sizing, tolerances, and confirmed specifications.
+            </div>
+          </section>
+
+          <!-- Specifications -->
+          <section class="card">
+            <h2>Specifications</h2>
+            <dl class="spec">
+              <div><dt>MPN</dt><dd>LW-2026-pear-pebble-ring</dd></div>
+              <div><dt>Finished metal</dt><dd>18K Rose Gold (alt: 18K White Gold)</dd></div>
+              <div><dt>Approx. metal weight</dt><dd>~18 g (design-dependent)</dd></div>
+              <div><dt>Lead time</dt><dd>30 days</dd></div>
+            </dl>
+          </section>
+
+          <!-- Documentation -->
+          <section class="card">
+            <h2>Documentation</h2>
+            <ul class="list">
+              <li>GIA report photo included in the media set (reference image).</li>
+              <li>Digital documentation pack provided (PDF bundle).</li>
+              <li>Replacement-value workflow supported (where applicable, third-party appraisal).</li>
+            </ul>
+          </section>
+
+          <!-- Standards -->
+          <section class="card">
+            <h2>Standards & representation</h2>
+            <ul class="list">
+              <li>Business practices align with U.S. jewelry industry compliance and representation standards, including guidance issued by the Jewelers Vigilance Committee (JVC).</li>
+              <li>Verification before fabrication. Specifications confirmed prior to production.</li>
+            </ul>
+
+            <div class="callout">
+              <strong>Metal input:</strong>
+              We use U.S. 24K fine gold as base material input for alloying; the finished ring is delivered as 18K (as specified).
+            </div>
+          </section>
+
+          <!-- Media set -->
+          <section class="card">
+            <h2>Media set</h2>
+            <ul class="list">
+              <li>5 product photos</li>
+              <li>1 day video</li>
+              <li>1 GIA report photo</li>
+            </ul>
+          </section>
+
+          <!-- Inquiry -->
+          <section class="card">
+            <h2>Inquiry</h2>
+            <p class="para">
+              Request a confirmed spec sheet and final quote.
+            </p>
+            <div class="ctaRow">
+              <a class="cta" href="mailto:contact@lw-gems.com?subject=Inquiry%20—%20LW-2026-pear-pebble-ring">Email inquiry</a>
+              <button class="cta ghost" id="copyMPN" type="button">Copy MPN</button>
+            </div>
+          </section>
+
+        </div>
+
+        <div class="sheetBottomSafe"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Access enforcement MUST load before catalog.js -->
+  <script src="/assets/js/access.js"></script>
+  <script src="/assets/js/catalog.js"></script>
+</body>
+</html>
