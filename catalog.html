@@ -5,51 +5,47 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>LW Private Catalog — Pear Pebble Ring</title>
   <meta name="robots" content="noindex,nofollow" />
-  <link rel="stylesheet" href="/assets/css/catalog.css" />
+  <link rel="stylesheet" href="assets/css/catalog.css" />
 </head>
 
 <body>
   <main class="stage" aria-label="Private catalog item">
 
-    <!-- Fullscreen media viewer -->
     <section class="viewer" aria-label="Media viewer">
       <div class="media" id="mediaRoot" aria-live="polite">
 
-        <!-- 5 photos -->
         <figure class="slide is-active" aria-label="Image 1">
-          <img src="/assets/media/hero-01.jpg" alt="Pear Pebble Ring — image 1" loading="eager" decoding="async">
+          <img src="assets/media/hero-01.jpg" alt="Pear Pebble Ring — image 1" loading="eager" decoding="async">
         </figure>
 
         <figure class="slide" aria-label="Image 2">
-          <img src="/assets/media/hero-02.jpg" alt="Pear Pebble Ring — image 2" loading="lazy" decoding="async">
+          <img src="assets/media/hero-02.jpg" alt="Pear Pebble Ring — image 2" loading="lazy" decoding="async">
         </figure>
 
         <figure class="slide" aria-label="Image 3">
-          <img src="/assets/media/hero-03.jpg" alt="Pear Pebble Ring — image 3" loading="lazy" decoding="async">
+          <img src="assets/media/hero-03.jpg" alt="Pear Pebble Ring — image 3" loading="lazy" decoding="async">
         </figure>
 
         <figure class="slide" aria-label="Image 4">
-          <img src="/assets/media/hero-04.jpg" alt="Pear Pebble Ring — image 4" loading="lazy" decoding="async">
+          <img src="assets/media/hero-04.jpg" alt="Pear Pebble Ring — image 4" loading="lazy" decoding="async">
         </figure>
 
         <figure class="slide" aria-label="Image 5">
-          <img src="/assets/media/hero-05.jpg" alt="Pear Pebble Ring — image 5" loading="lazy" decoding="async">
+          <img src="assets/media/hero-05.jpg" alt="Pear Pebble Ring — image 5" loading="lazy" decoding="async">
         </figure>
 
-        <!-- day video -->
         <figure class="slide" aria-label="Day video">
           <video class="vid" controls playsinline preload="metadata">
-            <source src="/assets/media/day-video.mp4" type="video/mp4">
+            <source src="assets/media/day-video.mp4" type="video/mp4">
           </video>
         </figure>
 
-        <!-- GIA report photo -->
         <figure class="slide" aria-label="GIA report image">
-          <img src="/assets/media/gia-report.jpg" alt="GIA report photo (reference image)" loading="lazy" decoding="async">
+          <img src="assets/media/gia-report.jpg" alt="GIA report photo (reference image)" loading="lazy" decoding="async">
         </figure>
+
       </div>
 
-      <!-- Silent navigation -->
       <div class="nav" aria-label="Media navigation">
         <button class="navBtn" id="prevBtn" type="button" aria-label="Previous">‹</button>
         <div class="dots" id="dots" aria-label="Position"></div>
@@ -57,7 +53,6 @@
       </div>
     </section>
 
-    <!-- Bottom strip: only 2 lines + button -->
     <footer class="bottom" aria-label="Bottom strip">
       <div class="bottomInner">
         <div class="twoLines">
@@ -72,7 +67,6 @@
       </div>
     </footer>
 
-    <!-- Slide-up sheet -->
     <section class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Technical fiche" hidden>
       <div class="sheetScrim" id="sheetScrim" aria-hidden="true"></div>
 
@@ -92,7 +86,6 @@
 
         <div class="sheetBody">
 
-          <!-- Pricing -->
           <section class="card">
             <div class="cardHead">
               <h2>Pricing</h2>
@@ -121,7 +114,6 @@
             </div>
           </section>
 
-          <!-- Specifications -->
           <section class="card">
             <h2>Specifications</h2>
             <dl class="spec">
@@ -132,7 +124,6 @@
             </dl>
           </section>
 
-          <!-- Documentation -->
           <section class="card">
             <h2>Documentation</h2>
             <ul class="list">
@@ -142,7 +133,6 @@
             </ul>
           </section>
 
-          <!-- Standards -->
           <section class="card">
             <h2>Standards & representation</h2>
             <ul class="list">
@@ -156,7 +146,6 @@
             </div>
           </section>
 
-          <!-- Media set -->
           <section class="card">
             <h2>Media set</h2>
             <ul class="list">
@@ -166,7 +155,6 @@
             </ul>
           </section>
 
-          <!-- Inquiry -->
           <section class="card">
             <h2>Inquiry</h2>
             <p class="para">
@@ -186,8 +174,7 @@
 
   </main>
 
-  <!-- Access enforcement MUST load before catalog.js -->
-  <script src="/assets/js/access.js"></script>
-  <script src="/assets/js/catalog.js"></script>
+  <script src="assets/js/access.js"></script>
+  <script src="assets/js/catalog.js"></script>
 </body>
 </html>
