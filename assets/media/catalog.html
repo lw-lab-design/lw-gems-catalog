@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>LW Gems — Private Catalog</title>
+  <meta name="robots" content="noindex,nofollow" />
+  <link rel="stylesheet" href="assets/css/catalog.css" />
+
+  <!-- Access gate: blocks direct access unless sessionStorage has lw_access=ok -->
+  <script src="assets/js/access.js"></script>
+</head>
+
+<body>
+  <main class="stage" aria-label="Private catalog item">
+
+    <section class="viewer" aria-label="Media viewer">
+      <div class="media" id="mediaRoot" aria-live="polite">
+
+        <!-- 5 photos -->
+        <figure class="slide is-active" data-kind="image">
+          <img src="assets/media/hero-01.jpg" alt="Pear Pebble Ring — image 1" loading="eager" decoding="async">
+        </figure>
+        <figure class="slide" data-kind="image">
+          <img src="assets/media/hero-02.jpg" alt="Pear Pebble Ring — image 2" loading="lazy" decoding="async">
+        </figure>
+        <figure class="slide" data-kind="image">
+          <img src="assets/media/hero-03.jpg" alt="Pear Pebble Ring — image 3" loading="lazy" decoding="async">
+        </figure>
+        <figure class="slide" data-kind="image">
+          <img src="assets/media/hero-04.jpg" alt="Pear Pebble Ring — image 4" loading="lazy" decoding="async">
+        </figure>
+        <figure class="slide" data-kind="image">
+          <img src="assets/media/hero-05.jpg" alt="Pear Pebble Ring — image 5" loading="lazy" decoding="async">
+        </figure>
+
+        <!-- Day video -->
+        <figure class="slide" data-kind="video">
+          <video class="vid" controls playsinline preload="metadata">
+            <source src="assets/media/day-video.mp4" type="video/mp4">
+          </video>
+        </figure>
+
+        <!-- GIA report photo -->
+        <figure class="slide" data-kind="image">
+          <img src="assets/media/gia-report.jpg" alt="GIA report photo (reference image)" loading="lazy" decoding="async">
+        </figure>
+      </div>
+
+      <div class="nav">
+        <button class="navBtn" id="prevBtn" type="button" aria-label="Previous media">‹</button>
+        <div class="dots" id="dots" aria-label="Media position"></div>
+        <button class="navBtn" id="nextBtn" type="button" aria-label="Next media">›</button
