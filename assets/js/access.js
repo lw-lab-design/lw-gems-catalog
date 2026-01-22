@@ -1,9 +1,17 @@
 (() => {
-  // Simple access gate (curation-level, not bank-grade security)
+  // Works on GitHub Pages project sites (e.g. /lw-gems-catalog/)
+  const parts = (location.pathname || "/").split("/").filter(Boolean);
+  const base = parts.length ? `/${parts[0]}/` : "/";
+
+  const path = (location.pathname || "").toLowerCase();
+  const isProtected =
+    path.endsWith("/catalog.html") ||
+    path.includes("/p/");
+
+  if (!isProtected) return;
+
   const ok = sessionStorage.getItem("lw_access") === "ok";
   if (!ok) {
-    // Preserve target for after login (optional)
-    const target = encodeURIComponent(window.location.pathname + window.location.search + window.location.hash);
-    window.location.replace(`/lw-gems-catalog/index.html#t=${target}`);
+    location.replace(base + "index.html");
   }
 })();
