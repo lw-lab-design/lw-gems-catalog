@@ -65,14 +65,22 @@
     <div class="error" id="error">Invalid access code</div>
   </div>
 
+  <!-- 🔒 ACCESS SCRIPT (CORRECTED) -->
   <script>
     function enter(){
       const code = document.getElementById('code').value;
+
       if(code === "catalogo0"){
+
+        // Detect base path for GitHub Pages project (e.g. /lw-gems-catalog/)
+        const parts = (location.pathname || "/").split("/").filter(Boolean);
+        const base = parts.length ? `/${parts[0]}/` : "/";
+
         sessionStorage.setItem("lw_access","ok");
-        window.location.href = "catalog.html";
+        window.location.href = base + "catalog.html";
+
       } else {
-        document.getElementById('error').style.display="block";
+        document.getElementById('error').style.display = "block";
       }
     }
   </script>
