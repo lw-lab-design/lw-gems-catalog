@@ -1,67 +1,21 @@
-/* assets/js/catalog.js
-   LW Private Catalog — single file
-   - Slider (auto-removes broken/deleted media)
-   - Fiche sheet modal
-   - Pricing toggle
-   - Copy MPN
-   - Technical Viewer overlay (IMG + IFRAME) with safe fallback
-*/
-
 (() => {
-  // ---------------------------
-  // Shared: scroll lock (sheet + viewer)
-  // ---------------------------
-  let scrollLocks = 0;
-
-  function lockScroll(on) {
-    if (on) scrollLocks += 1;
-    else scrollLocks = Math.max(0, scrollLocks - 1);
-
-    const locked = scrollLocks > 0;
-    document.documentElement.style.overflow = locked ? "hidden" : "";
-    document.body.style.overflow = locked ? "hidden" : "";
-  }
-
-  // ---------------------------
-  // SLIDER
-  // ---------------------------
-  const mediaRoot = document.getElementById("mediaRoot");
+  // ---------- SLIDER ----------
+  const slides = Array.from(document.querySelectorAll(".slide"));
   const dotsWrap = document.getElementById("dots");
   const prev = document.getElementById("prevBtn");
   const next = document.getElementById("nextBtn");
 
-  let slides = Array.from(document.querySelectorAll(".slide"));
   let index = 0;
   let dots = [];
 
-  function pauseLeavingVideo() {
-    const leavingVideo = slides[index]?.querySelector("video");
-    if (leavingVideo && typeof leavingVideo.pause === "function") leavingVideo.pause();
-  }
-
-  function rebuildDots() {
-    if (!dotsWrap) return;
-    dotsWrap.innerHTML = "";
-
-    dots = slides.map((_, i) => {
-      const d = document.createElement("button");
-      d.type = "button";
-      d.className = "dot" + (i === index ? " is-active" : "");
-      d.setAttribute("aria-label", `Go to item ${i + 1}`);
-      d.addEventListener("click", () => setActive(i));
-      dotsWrap.appendChild(d);
-      return d;
-    });
-  }
-
   function setActive(i) {
-    slides = Array.from(document.querySelectorAll(".slide"));
     if (!slides.length) return;
 
-    pauseLeavingVideo();
+    const leavingVideo = slides[index]?.querySelector("video");
+    if (leavingVideo) leavingVideo.pause();
 
-    slides.forEach((s) => s.classList.remove("is-active"));
-    dots.forEach((d) => d.classList.remove("is-active"));
+    slides[index].classList.remove("is-active");
+    if (dots[index]) dots[index].classList.remove("is-active");
 
     index = (i + slides.length) % slides.length;
 
@@ -69,76 +23,38 @@
     if (dots[index]) dots[index].classList.add("is-active");
   }
 
-  // Remove slides whose file was deleted (prevents "image 3/4" ghost slides)
-  function removeBrokenSlides() {
-    slides = Array.from(document.querySelectorAll(".slide"));
-    if (!slides.length) return;
-
-    let removed = false;
-
-    slides.forEach((fig) => {
-      const img = fig.querySelector("img");
-      const vid = fig.querySelector("video");
-
-      const remove = () => {
-        // keep index stable
-        const all = Array.from(document.querySelectorAll(".slide"));
-        const idx = all.indexOf(fig);
-        fig.remove();
-        removed = true;
-
-        // if we removed something before/at current index, adjust
-        if (idx >= 0 && idx <= index) index = Math.max(0, index - 1);
-      };
-
-      // If already broken (common when cached HTML points to deleted files)
-      if (img) {
-        // If browser already knows it failed
-        if ((img.complete && img.naturalWidth === 0) || !img.getAttribute("src")) remove();
-        else img.addEventListener("error", remove, { once: true });
-      } else if (vid) {
-        // If video has no source or failed
-        const src = vid.currentSrc || vid.getAttribute("src") || vid.querySelector("source")?.getAttribute("src");
-        if (!src) remove();
-        else vid.addEventListener("error", remove, { once: true });
-      }
+  if (slides.length && dotsWrap) {
+    slides.forEach((_, i) => {
+      const d = document.createElement("button");
+      d.type = "button";
+      d.className = "dot" + (i === 0 ? " is-active" : "");
+      d.setAttribute("aria-label", `Go to item ${i + 1}`);
+      d.addEventListener("click", () => setActive(i));
+      dotsWrap.appendChild(d);
     });
-
-    if (removed) {
-      slides = Array.from(document.querySelectorAll(".slide"));
-      if (!slides.length) return;
-      slides.forEach((s) => s.classList.remove("is-active"));
-      index = Math.min(index, slides.length - 1);
-      slides[index].classList.add("is-active");
-      rebuildDots();
-    } else {
-      rebuildDots();
-    }
-  }
-
-  // init slider
-  if (slides.length) {
-    removeBrokenSlides();
-    setActive(0);
+    dots = Array.from(dotsWrap.children);
   }
 
   if (prev) prev.addEventListener("click", () => setActive(index - 1));
   if (next) next.addEventListener("click", () => setActive(index + 1));
 
-  // ---------------------------
-  // FICHE (SHEET)
-  // ---------------------------
+  // ---------- FICHE (SHEET) ----------
   const openBtn = document.getElementById("openSheet");
   const closeBtn = document.getElementById("closeSheet");
   const sheet = document.getElementById("sheet");
   const scrim = document.getElementById("sheetScrim");
 
-  let lastFocusSheet = null;
+  if (!sheet || !openBtn) return;
+
+  let lastFocus = null;
+
+  function lockScroll(lock) {
+    document.documentElement.style.overflow = lock ? "hidden" : "";
+    document.body.style.overflow = lock ? "hidden" : "";
+  }
 
   function openSheet() {
-    if (!sheet || !openBtn) return;
-    lastFocusSheet = document.activeElement;
-
+    lastFocus = document.activeElement;
     sheet.hidden = false;
     openBtn.setAttribute("aria-expanded", "true");
     lockScroll(true);
@@ -150,30 +66,25 @@
   }
 
   function closeSheet() {
-    if (!sheet || !openBtn) return;
-
     sheet.hidden = true;
     openBtn.setAttribute("aria-expanded", "false");
     lockScroll(false);
-
-    if (lastFocusSheet && typeof lastFocusSheet.focus === "function") lastFocusSheet.focus();
+    if (lastFocus && typeof lastFocus.focus === "function") lastFocus.focus();
   }
 
-  if (openBtn && sheet) openBtn.addEventListener("click", openSheet);
+  openBtn.addEventListener("click", openSheet);
   if (closeBtn) closeBtn.addEventListener("click", closeSheet);
   if (scrim) scrim.addEventListener("click", closeSheet);
 
   document.addEventListener("keydown", (e) => {
-    if (!sheet || sheet.hidden) return;
+    if (sheet.hidden) return;
     if (e.key === "Escape") {
       e.preventDefault();
       closeSheet();
     }
   });
 
-  // ---------------------------
-  // PRICING TOGGLE
-  // ---------------------------
+  // ---------- PRICING TOGGLE ----------
   const priceEl = document.getElementById("price");
   const priceSubEl = document.getElementById("priceSub");
   const segBtns = Array.from(document.querySelectorAll(".segBtn"));
@@ -192,7 +103,6 @@
     const weight = btn.dataset.weight || "";
 
     priceEl.textContent = fmtUSD(price);
-
     priceSubEl.innerHTML =
       `${metal}${metal && weight ? " · " : ""}${weight}` +
       `<br><span class="sub2">Lead time: 30 days</span>`;
@@ -205,213 +115,176 @@
     applyPriceFrom(segBtns.find((b) => b.classList.contains("is-active")) || segBtns[0]);
   }
 
-  // ---------------------------
-  // COPY MPN
-  // ---------------------------
-  const copyBtn = document.getElementById("copyMPN");
-  function getMPN() {
-    // Prefer the <dd> under Specifications if present
-    const dd = document.querySelector(".spec dd");
-    if (dd && dd.textContent.trim()) return dd.textContent.trim();
-
-    // Fallback: pill strong
-    const pillStrong = document.querySelector(".pill strong");
-    if (pillStrong && pillStrong.textContent.trim()) return pillStrong.textContent.trim();
-
-    return "";
-  }
-
-  if (copyBtn) {
-    copyBtn.addEventListener("click", async () => {
-      const mpn = getMPN();
-      if (!mpn) return;
-
-      try {
-        await navigator.clipboard.writeText(mpn);
-        copyBtn.textContent = "Copied";
-        setTimeout(() => (copyBtn.textContent = "Copy MPN"), 900);
-      } catch {
-        // Fallback
-        const ta = document.createElement("textarea");
-        ta.value = mpn;
-        ta.setAttribute("readonly", "");
-        ta.style.position = "fixed";
-        ta.style.left = "-9999px";
-        document.body.appendChild(ta);
-        ta.select();
-        try {
-          document.execCommand("copy");
-          copyBtn.textContent = "Copied";
-          setTimeout(() => (copyBtn.textContent = "Copy MPN"), 900);
-        } finally {
-          ta.remove();
-        }
-      }
-    });
-  }
-
-  // ---------------------------
-  // TECHNICAL VIEWER OVERLAY
-  // ---------------------------
+  // ---------- TECH VIEWER (IMG or IFRAME) ----------
   const viewer = document.getElementById("techViewer");
+  if (!viewer) return;
+
   const viewerScrim = document.getElementById("techViewerScrim");
   const viewerClose = document.getElementById("techViewerClose");
-  const viewerTitle = document.getElementById("techViewerTitle");
-  const viewerOpenNew = document.getElementById("techViewerOpenNew");
+  const titleEl = document.getElementById("techViewerTitle");
+  const openNew = document.getElementById("techViewerOpenNew");
+  const frame = document.getElementById("techViewerFrame");
+  const img = document.getElementById("techViewerImg");
 
-  const viewerImg = document.getElementById("techViewerImg");
-  const viewerFrame = document.getElementById("techViewerFrame");
-
-  let lastFocusViewer = null;
-
-  function ensureFallbackMsgEl() {
-    let el = document.getElementById("techViewerMsg");
-    if (el) return el;
-
-    el = document.createElement("div");
-    el.id = "techViewerMsg";
-    el.style.padding = "14px 16px";
-    el.style.fontSize = "13px";
-    el.style.opacity = "0.85";
-    el.style.display = "none";
-    el.textContent =
-      "This content cannot be embedded in an iframe on some hosts. Use “Open in new tab”.";
-    const body = viewer?.querySelector(".overlayBody");
-    if (body) body.prepend(el);
-    return el;
+  // Small inline note (created once)
+  let noteEl = viewer.querySelector("[data-tech-note]");
+  if (!noteEl) {
+    noteEl = document.createElement("div");
+    noteEl.setAttribute("data-tech-note", "1");
+    noteEl.style.cssText =
+      "padding:10px 16px;border-bottom:1px solid rgba(255,255,255,.08);" +
+      "font-size:12px;opacity:.78;display:none;";
+    // insert note right under header
+    const header = viewer.querySelector(".overlayHeader");
+    header?.insertAdjacentElement("afterend", noteEl);
   }
 
-  function isImageURL(url) {
-    const u = String(url || "").split("#")[0].split("?")[0].toLowerCase();
-    return u.endsWith(".jpg") || u.endsWith(".jpeg") || u.endsWith(".png") || u.endsWith(".webp") || u.endsWith(".gif");
+  let lastFocusViewer = null;
+  let iframeFallbackTimer = null;
+
+  function isImageUrl(url) {
+    const u = String(url || "").toLowerCase();
+    return u.endsWith(".jpg") || u.endsWith(".jpeg") || u.endsWith(".png") || u.endsWith(".webp") || u.startsWith("data:image/");
+  }
+
+  function showNote(msg) {
+    if (!noteEl) return;
+    if (!msg) {
+      noteEl.style.display = "none";
+      noteEl.textContent = "";
+      return;
+    }
+    noteEl.textContent = msg;
+    noteEl.style.display = "block";
+  }
+
+  function lockScrollOn() {
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
+  }
+  function lockScrollOff() {
+    document.documentElement.style.overflow = "";
+    document.body.style.overflow = "";
   }
 
   function openViewer(url, title) {
-    if (!viewer) return;
-
     lastFocusViewer = document.activeElement;
 
     const safeTitle = title || "Technical viewer";
-    viewerTitle.textContent = safeTitle;
+    const safeUrl = url || "";
 
-    viewerOpenNew.href = url || "#";
-    viewer.hidden = false;
-    lockScroll(true);
+    titleEl.textContent = safeTitle;
+    openNew.href = safeUrl || "#";
 
-    const msg = ensureFallbackMsgEl();
-    msg.style.display = "none";
+    // reset
+    showNote("");
+    if (iframeFallbackTimer) window.clearTimeout(iframeFallbackTimer);
+    iframeFallbackTimer = null;
 
-    // Reset both modes
-    if (viewerFrame) {
-      viewerFrame.src = "about:blank";
-      viewerFrame.style.display = "none";
-    }
-    if (viewerImg) {
-      viewerImg.src = "";
-      viewerImg.hidden = true;
-      viewerImg.style.display = "";
-    }
-
-    if (!url) {
-      msg.style.display = "";
+    // IMG mode
+    if (isImageUrl(safeUrl)) {
+      if (frame) {
+        frame.src = "";
+        frame.hidden = true;
+      }
+      if (img) {
+        img.src = safeUrl;
+        img.alt = safeTitle;
+        img.hidden = false;
+      }
+      viewer.hidden = false;
+      lockScrollOn();
+      viewerClose?.focus?.();
       return;
     }
 
-    if (isImageURL(url)) {
-      // IMG mode
-      if (!viewerImg) return;
-
-      viewerImg.alt = safeTitle;
-      viewerImg.hidden = false;
-
-      // If your CSS still only targets ".overlayBody iframe", force sane sizing here
-      viewerImg.style.width = "100%";
-      viewerImg.style.height = "100%";
-      viewerImg.style.objectFit = "contain";
-      viewerImg.style.background = "#0b0d10";
-
-      viewerImg.onload = () => (msg.style.display = "none");
-      viewerImg.onerror = () => (msg.style.display = "");
-
-      viewerImg.src = url;
-    } else {
-      // IFRAME mode
-      if (!viewerFrame) return;
-
-      viewerFrame.style.display = "block";
-
-      // Some hosts block embedding (X-Frame-Options / CSP). We can’t override that.
-      // We do: set src after a tick + show fallback message if it stays blank.
-      requestAnimationFrame(() => {
-        viewerFrame.src = url;
-      });
-
-      // If the iframe gets blocked, browsers often keep it blank. Provide a visible hint.
-      setTimeout(() => {
-        // If still on same URL but appears empty, show message.
-        // (No reliable cross-origin check; this is best-effort.)
-        if (!viewer.hidden && viewerFrame.src && viewerFrame.src !== "about:blank") {
-          msg.style.display = "";
-        }
-      }, 900);
+    // IFRAME mode
+    if (img) {
+      img.src = "";
+      img.hidden = true;
+    }
+    if (frame) {
+      frame.hidden = false;
+      frame.src = safeUrl;
     }
 
-    // focus close for keyboard
-    setTimeout(() => viewerClose?.focus(), 0);
+    viewer.hidden = false;
+    lockScrollOn();
+    viewerClose?.focus?.();
+
+    // If the host blocks embedding, Safari often stays blank.
+    // We can’t bypass that, but we can detect “no load” quickly and guide to new tab.
+    iframeFallbackTimer = window.setTimeout(() => {
+      // If user still sees blank after 1.2s, show guidance.
+      showNote("This content cannot be embedded in an iframe on some hosts. Use “Open in new tab”.");
+    }, 1200);
   }
 
   function closeViewer() {
-    if (!viewer) return;
-
     viewer.hidden = true;
+    showNote("");
+    if (iframeFallbackTimer) window.clearTimeout(iframeFallbackTimer);
+    iframeFallbackTimer = null;
 
-    // Reset
-    if (viewerFrame) {
-      viewerFrame.src = "about:blank";
-      viewerFrame.style.display = "none";
+    if (frame) {
+      frame.src = "";
+      frame.hidden = false;
     }
-    if (viewerImg) {
-      viewerImg.src = "";
-      viewerImg.hidden = true;
+    if (img) {
+      img.src = "";
+      img.hidden = true;
     }
 
-    viewerOpenNew.href = "#";
-    lockScroll(false);
+    openNew.href = "#";
+    lockScrollOff();
 
-    if (lastFocusViewer && typeof lastFocusViewer.focus === "function") lastFocusViewer.focus();
+    if (lastFocusViewer && typeof lastFocusViewer.focus === "function") {
+      lastFocusViewer.focus();
+    }
   }
 
-  // Delegate clicks: any element with data-viewer-url triggers overlay
+  // Click delegation: any element with data-viewer-url opens overlay
   document.addEventListener("click", (e) => {
     const trigger = e.target.closest("[data-viewer-url]");
     if (!trigger) return;
 
     e.preventDefault();
-
-    const url = trigger.getAttribute("data-viewer-url");
-    const title = trigger.getAttribute("data-viewer-title") || "Technical viewer";
-
-    openViewer(url, title);
+    openViewer(
+      trigger.getAttribute("data-viewer-url"),
+      trigger.getAttribute("data-viewer-title") || trigger.textContent?.trim()
+    );
   });
 
-  if (viewerClose) viewerClose.addEventListener("click", closeViewer);
-  if (viewerScrim) viewerScrim.addEventListener("click", closeViewer);
+  viewerClose?.addEventListener("click", closeViewer);
+  viewerScrim?.addEventListener("click", closeViewer);
 
   document.addEventListener("keydown", (e) => {
-    // ESC closes viewer first (if open), then sheet
-    if (e.key !== "Escape") return;
-
-    if (viewer && !viewer.hidden) {
+    if (e.key === "Escape" && viewer && !viewer.hidden) {
       e.preventDefault();
       closeViewer();
-      return;
     }
   });
 
-  // ---------------------------
-  // Final: re-check broken slides after load (covers cached HTML + deleted files)
-  // ---------------------------
-  window.addEventListener("load", () => {
-    removeBrokenSlides();
+  // If iframe DOES load, remove warning note
+  frame?.addEventListener("load", () => {
+    showNote("");
+    if (iframeFallbackTimer) window.clearTimeout(iframeFallbackTimer);
+    iframeFallbackTimer = null;
   });
+
+  // Optional: Copy MPN
+  const copyBtn = document.getElementById("copyMPN");
+  if (copyBtn) {
+    copyBtn.addEventListener("click", async () => {
+      const mpn = document.querySelector(".pill strong")?.textContent?.trim() || "";
+      if (!mpn) return;
+      try {
+        await navigator.clipboard.writeText(mpn);
+        copyBtn.textContent = "Copied";
+        setTimeout(() => (copyBtn.textContent = "Copy MPN"), 1200);
+      } catch {
+        // fallback: do nothing
+      }
+    });
+  }
 })();
