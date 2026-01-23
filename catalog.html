@@ -212,14 +212,25 @@
         </header>
 
         <div class="overlayBody">
-          <iframe
-            id="techViewerFrame"
-            src=""
-            loading="eager"
-            referrerpolicy="no-referrer"
-            allowfullscreen>
-          </iframe>
-        </div>
+
+  <!-- Image viewer (for GIA JPG / PNG) -->
+  <img
+    id="techViewerImg"
+    class="viewerImg"
+    alt=""
+    hidden>
+
+  <!-- Frame viewer (for 360 / HTML / PDF) -->
+  <iframe
+    id="techViewerFrame"
+    class="viewerFrame"
+    src=""
+    loading="eager"
+    referrerpolicy="no-referrer"
+    allowfullscreen>
+  </iframe>
+
+</div>
       </div>
     </section>
 
