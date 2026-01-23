@@ -122,3 +122,59 @@
     applyPriceFrom(segBtns.find((b) => b.classList.contains("is-active")) || segBtns[0]);
   }
 })();
+
+/* =========================================================
+   Technical Viewer Overlay (generic)
+   ========================================================= */
+
+(function () {
+  const viewer = document.getElementById('techViewer');
+  if (!viewer) return;
+
+  const scrim = document.getElementById('techViewerScrim');
+  const closeBtn = document.getElementById('techViewerClose');
+  const titleEl = document.getElementById('techViewerTitle');
+  const frame = document.getElementById('techViewerFrame');
+  const openNew = document.getElementById('techViewerOpenNew');
+
+  function openViewer(url, title) {
+    titleEl.textContent = title || 'Technical viewer';
+    frame.src = url || '';
+    openNew.href = url || '#';
+    viewer.hidden = false;
+
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeViewer() {
+    viewer.hidden = true;
+    frame.src = '';
+    openNew.href = '#';
+
+    document.documentElement.style.overflow = '';
+    document.body.style.overflow = '';
+  }
+
+  document.addEventListener('click', (e) => {
+    const trigger = e.target.closest('[data-viewer-url]');
+    if (!trigger) return;
+
+    e.preventDefault();
+    openViewer(
+      trigger.getAttribute('data-viewer-url'),
+      trigger.getAttribute('data-viewer-title')
+    );
+  });
+
+  closeBtn.addEventListener('click', closeViewer);
+  scrim.addEventListener('click', closeViewer);
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !viewer.hidden) {
+      closeViewer();
+    }
+  });
+})();
+
+
