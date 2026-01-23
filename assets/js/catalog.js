@@ -1,3 +1,12 @@
+/* =========================================================
+   catalog.js — LW Private Catalog
+   Includes:
+   - Slider (images)
+   - Fiche (sheet) open/close
+   - Pricing toggle
+   - Technical Viewer Overlay (generic) with IMG + IFRAME modes
+   ========================================================= */
+
 (() => {
   // ---------- SLIDER ----------
   const slides = Array.from(document.querySelectorAll(".slide"));
@@ -11,7 +20,7 @@
   function setActive(i) {
     if (!slides.length) return;
 
-    // pausa cualquier video al salir de un slide
+    // pause any <video> when leaving a slide
     const leavingVideo = slides[index]?.querySelector("video");
     if (leavingVideo) leavingVideo.pause();
 
@@ -61,7 +70,7 @@
     openBtn.setAttribute("aria-expanded", "true");
     lockScroll(true);
 
-    // foco al primer elemento interactivo dentro del panel
+    // focus first interactive element in the panel
     const focusable = sheet.querySelector(
       "button, [href], input, select, textarea, [tabindex]:not([tabindex='-1'])"
     );
@@ -71,7 +80,12 @@
   function closeSheet() {
     sheet.hidden = true;
     openBtn.setAttribute("aria-expanded", "false");
-    lockScroll(false);
+
+    // If technical viewer is open, keep scroll locked; otherwise unlock.
+    const techViewer = document.getElementById("techViewer");
+    const techOpen = techViewer && !techViewer.hidden;
+    lockScroll(techOpen);
+
     if (lastFocus && typeof lastFocus.focus === "function") lastFocus.focus();
   }
 
@@ -107,7 +121,7 @@
 
     priceEl.textContent = fmtUSD(price);
 
-    // Respeta tu layout actual
+    // preserve current layout
     priceSubEl.innerHTML = `${metal}${metal && weight ? " · " : ""}${weight}<br><span class="sub2">Lead time: 30 days</span>`;
 
     segBtns.forEach((b) => b.classList.toggle("is-active", b === btn));
@@ -118,63 +132,116 @@
       btn.addEventListener("click", () => applyPriceFrom(btn));
     });
 
-    // inicial: el que ya venga marcado como activo o el primero
+    // initial: active button or first
     applyPriceFrom(segBtns.find((b) => b.classList.contains("is-active")) || segBtns[0]);
   }
-})();
 
-/* =========================================================
-   Technical Viewer Overlay (generic)
-   ========================================================= */
+  /* =========================================================
+     Technical Viewer Overlay (generic) — IMG + IFRAME modes
+     Requirements in HTML:
+       - #techViewer
+       - #techViewerScrim
+       - #techViewerClose
+       - #techViewerTitle
+       - #techViewerOpenNew
+       - #techViewerImg   (img)
+       - #techViewerFrame (iframe)
+     Triggers:
+       Any element with:
+         data-viewer-url="..."
+         data-viewer-title="..."
+     ========================================================= */
 
-(function () {
-  const viewer = document.getElementById('techViewer');
+  const viewer = document.getElementById("techViewer");
   if (!viewer) return;
 
-  const scrim = document.getElementById('techViewerScrim');
-  const closeBtn = document.getElementById('techViewerClose');
-  const titleEl = document.getElementById('techViewerTitle');
-  const frame = document.getElementById('techViewerFrame');
-  const openNew = document.getElementById('techViewerOpenNew');
+  const viewerScrim = document.getElementById("techViewerScrim");
+  const viewerClose = document.getElementById("techViewerClose");
+  const viewerTitle = document.getElementById("techViewerTitle");
+  const viewerOpenNew = document.getElementById("techViewerOpenNew");
+  const viewerFrame = document.getElementById("techViewerFrame");
+  const viewerImg = document.getElementById("techViewerImg");
+
+  function isImageUrl(url) {
+    const u = (url || "").toLowerCase();
+    return (
+      u.endsWith(".jpg") ||
+      u.endsWith(".jpeg") ||
+      u.endsWith(".png") ||
+      u.endsWith(".webp")
+    );
+  }
 
   function openViewer(url, title) {
-    titleEl.textContent = title || 'Technical viewer';
-    frame.src = url || '';
-    openNew.href = url || '#';
-    viewer.hidden = false;
+    const safeUrl = url || "";
+    const safeTitle = title || "Technical viewer";
 
-    document.documentElement.style.overflow = 'hidden';
-    document.body.style.overflow = 'hidden';
+    if (viewerTitle) viewerTitle.textContent = safeTitle;
+    if (viewerOpenNew) viewerOpenNew.href = safeUrl || "#";
+
+    // Choose rendering mode
+    if (isImageUrl(safeUrl)) {
+      // IMAGE MODE
+      if (viewerFrame) {
+        viewerFrame.src = "";
+        viewerFrame.hidden = true;
+      }
+      if (viewerImg) {
+        viewerImg.src = safeUrl;
+        viewerImg.alt = safeTitle;
+        viewerImg.hidden = false;
+      }
+    } else {
+      // IFRAME MODE (HTML/PDF/360)
+      if (viewerImg) {
+        viewerImg.src = "";
+        viewerImg.alt = "";
+        viewerImg.hidden = true;
+      }
+      if (viewerFrame) {
+        viewerFrame.hidden = false;
+        viewerFrame.src = safeUrl;
+      }
+    }
+
+    viewer.hidden = false;
+    lockScroll(true);
   }
 
   function closeViewer() {
     viewer.hidden = true;
-    frame.src = '';
-    openNew.href = '#';
 
-    document.documentElement.style.overflow = '';
-    document.body.style.overflow = '';
+    if (viewerFrame) viewerFrame.src = "";
+    if (viewerImg) {
+      viewerImg.src = "";
+      viewerImg.alt = "";
+      viewerImg.hidden = true;
+    }
+    if (viewerOpenNew) viewerOpenNew.href = "#";
+
+    // If fiche is open, keep scroll locked; otherwise unlock.
+    lockScroll(!sheet.hidden);
   }
 
-  document.addEventListener('click', (e) => {
-    const trigger = e.target.closest('[data-viewer-url]');
+  // Delegated click for any technical viewer trigger
+  document.addEventListener("click", (e) => {
+    const trigger = e.target.closest("[data-viewer-url]");
     if (!trigger) return;
 
     e.preventDefault();
     openViewer(
-      trigger.getAttribute('data-viewer-url'),
-      trigger.getAttribute('data-viewer-title')
+      trigger.getAttribute("data-viewer-url"),
+      trigger.getAttribute("data-viewer-title")
     );
   });
 
-  closeBtn.addEventListener('click', closeViewer);
-  scrim.addEventListener('click', closeViewer);
+  if (viewerClose) viewerClose.addEventListener("click", closeViewer);
+  if (viewerScrim) viewerScrim.addEventListener("click", closeViewer);
 
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && !viewer.hidden) {
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !viewer.hidden) {
+      e.preventDefault();
       closeViewer();
     }
   });
 })();
-
-
