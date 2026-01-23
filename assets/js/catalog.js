@@ -166,60 +166,56 @@
     document.documentElement.style.overflow = "";
     document.body.style.overflow = "";
   }
+function openViewer(url, title) {
+  if (!url) return;
 
-  function openViewer(url, title) {
-    lastFocusViewer = document.activeElement;
+  const u = url.toLowerCase();
 
-    const safeTitle = title || "Technical viewer";
-    const safeUrl = url || "";
+  // Hosts conocidos que NO permiten iframe
+  const forceNewTab =
+    u.includes('cloudfront.net') ||
+    u.includes('vision360') ||
+    u.includes('v360') ||
+    u.includes('iframe-buster');
 
-    titleEl.textContent = safeTitle;
-    openNew.href = safeUrl || "#";
-
-    // reset
-    showNote("");
-    if (iframeFallbackTimer) window.clearTimeout(iframeFallbackTimer);
-    iframeFallbackTimer = null;
-
-    // IMG mode
-    if (isImageUrl(safeUrl)) {
-      if (frame) {
-        frame.src = "";
-        frame.hidden = true;
-      }
-      if (img) {
-        img.src = safeUrl;
-        img.alt = safeTitle;
-        img.hidden = false;
-      }
-      viewer.hidden = false;
-      lockScrollOn();
-      viewerClose?.focus?.();
-      return;
-    }
-
-    // IFRAME mode
-    if (img) {
-      img.src = "";
-      img.hidden = true;
-    }
-    if (frame) {
-      frame.hidden = false;
-      frame.src = safeUrl;
-    }
-
-    viewer.hidden = false;
-    lockScrollOn();
-    viewerClose?.focus?.();
-
-    // If the host blocks embedding, Safari often stays blank.
-    // We can’t bypass that, but we can detect “no load” quickly and guide to new tab.
-    iframeFallbackTimer = window.setTimeout(() => {
-      // If user still sees blank after 1.2s, show guidance.
-      showNote("This content cannot be embedded in an iframe on some hosts. Use “Open in new tab”.");
-    }, 1200);
+  // Si el host bloquea iframe → abrir directo
+  if (forceNewTab) {
+    window.open(url, '_blank', 'noopener');
+    return;
   }
 
+  // ---- Overlay normal ----
+  titleEl.textContent = title || 'Technical viewer';
+  openNew.href = url;
+
+  // Detectar imagen
+  const isImage =
+    u.endsWith('.jpg') ||
+    u.endsWith('.jpeg') ||
+    u.endsWith('.png') ||
+    u.endsWith('.webp');
+
+  if (isImage) {
+    frame.src = '';
+    frame.hidden = true;
+
+    img.src = url;
+    img.alt = title || '';
+    img.hidden = false;
+  } else {
+    img.src = '';
+    img.hidden = true;
+
+    frame.src = url;
+    frame.hidden = false;
+  }
+
+  viewer.hidden = false;
+  document.documentElement.style.overflow = 'hidden';
+  document.body.style.overflow = 'hidden';
+}
+  
+  
   function closeViewer() {
     viewer.hidden = true;
     showNote("");
