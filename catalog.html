@@ -9,6 +9,45 @@
 </head>
 
 <body>
+
+  <!-- =========================================================
+       Product Data (single source of truth)
+       Keep per-product specs here (read by catalog.js if needed)
+       ========================================================= -->
+  <script type="application/json" id="productData">
+  {
+    "mpn": "LW-2026-pear-pebble-ring",
+    "title": "Pear Pebble Ring",
+    "leadTimeDays": 30,
+    "pricing": {
+      "USD": [
+        { "label": "Rose Gold",  "price": 14500, "metal": "18K Rose Gold",  "weight": "approx. 18 g" },
+        { "label": "White Gold", "price": 16944, "metal": "18K White Gold", "weight": "(weight depends on alloy + build)" }
+      ]
+    },
+    "diamond": {
+      "report": {
+        "lab": "GIA",
+        "reportNumber": "*****52073",
+        "reportDate": "2025-12-03",
+        "shapeCuttingStyle": "Pear Brilliant",
+        "measurements_mm": "8.81 × 5.36 × 3.32",
+        "carat": 0.92,
+        "color": "H",
+        "clarity": "VS1",
+        "polish": "Excellent",
+        "symmetry": "Excellent",
+        "fluorescence": "Faint",
+        "inscription": "GIA *****52073"
+      },
+      "assets": {
+        "giaReportImage": "assets/media/gia-report-LW-2026-pear-pebble-ring.jpg",
+        "diamond360Url": "https://d3at7kzws0mw3g.cloudfront.net/video/Vision360.html?d=252831-462"
+      }
+    }
+  }
+  </script>
+
   <main class="stage" aria-label="Private catalog item">
 
     <section class="viewer" aria-label="Media viewer">
@@ -100,6 +139,23 @@
               <div><dt>Finished metal</dt><dd>18K Rose Gold (alt: 18K White Gold)</dd></div>
               <div><dt>Approx. metal weight</dt><dd>~18 g (design-dependent)</dd></div>
               <div><dt>Lead time</dt><dd>30 days</dd></div>
+            </dl>
+          </section>
+
+          <!-- Added: Diamond data (from report) -->
+          <section class="card">
+            <h2>Diamond (report summary)</h2>
+            <dl class="spec">
+              <div><dt>Report</dt><dd>GIA · *****52073 · 2025-12-03</dd></div>
+              <div><dt>Shape / style</dt><dd>Pear Brilliant</dd></div>
+              <div><dt>Measurements</dt><dd>8.81 × 5.36 × 3.32 mm</dd></div>
+              <div><dt>Carat</dt><dd>0.92 ct</dd></div>
+              <div><dt>Color</dt><dd>H</dd></div>
+              <div><dt>Clarity</dt><dd>VS1</dd></div>
+              <div><dt>Polish</dt><dd>Excellent</dd></div>
+              <div><dt>Symmetry</dt><dd>Excellent</dd></div>
+              <div><dt>Fluorescence</dt><dd>Faint</dd></div>
+              <div><dt>Inscription</dt><dd>GIA *****52073</dd></div>
             </dl>
           </section>
 
@@ -205,24 +261,24 @@
 
         <div class="overlayBody">
 
-  <!-- Image viewer (for GIA JPG / PNG) -->
-  <img
-    id="techViewerImg"
-    class="viewerImg"
-    alt=""
-    hidden>
+          <!-- Image viewer (for GIA JPG / PNG) -->
+          <img
+            id="techViewerImg"
+            class="viewerImg"
+            alt=""
+            hidden>
 
-  <!-- Frame viewer (for 360 / HTML / PDF) -->
-  <iframe
-    id="techViewerFrame"
-    class="viewerFrame"
-    src=""
-    loading="eager"
-    referrerpolicy="no-referrer"
-    allowfullscreen>
-  </iframe>
+          <!-- Frame viewer (for 360 / HTML / PDF) -->
+          <iframe
+            id="techViewerFrame"
+            class="viewerFrame"
+            src=""
+            loading="eager"
+            referrerpolicy="no-referrer"
+            allowfullscreen>
+          </iframe>
 
-</div>
+        </div>
       </div>
     </section>
 
