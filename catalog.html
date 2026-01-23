@@ -53,6 +53,7 @@
       </div>
     </footer>
 
+    <!-- Technical fiche -->
     <section class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Technical fiche" hidden>
       <div class="sheetScrim" id="sheetScrim" aria-hidden="true"></div>
 
@@ -126,12 +127,11 @@
                 View GIA report
               </a>
 
-              <a class="cta ghost"
-                 href="https://d3at7kzws0mw3g.cloudfront.net/video/Vision360.html?d=252831-462"
-                 target="_blank"
-                 rel="noopener">
+              <button class="cta ghost"
+                      type="button"
+                      id="openDiamond360">
                 View diamond 360°
-              </a>
+              </button>
             </div>
           </section>
 
@@ -163,14 +163,47 @@
               Request a confirmed spec sheet and final quote.
             </p>
             <div class="ctaRow">
-              <a class="cta" href="mailto:contact@lw-gems.com?subject=Inquiry%20—%20LW-2026-pear-pebble-ring">Email inquiry</a>
-              <button class="cta ghost" id="copyMPN" type="button">Copy MPN</button>
+              <a class="cta" href="mailto:contact@lw-gems.com?subject=Inquiry%20—%20LW-2026-pear-pebble-ring">
+                Email inquiry
+              </a>
+              <button class="cta ghost" id="copyMPN" type="button">
+                Copy MPN
+              </button>
             </div>
           </section>
 
         </div>
 
         <div class="sheetBottomSafe"></div>
+      </div>
+    </section>
+
+    <!-- Diamond 360 Overlay -->
+    <section id="diamond360Overlay"
+             role="dialog"
+             aria-modal="true"
+             aria-label="Diamond 360 reference"
+             hidden>
+
+      <div class="overlayScrim" id="diamond360Scrim"></div>
+
+      <div class="overlayPanel" role="document">
+        <header class="overlayHeader">
+          <div class="overlayTitle">Diamond 360° reference</div>
+          <button class="overlayClose"
+                  id="closeDiamond360"
+                  type="button"
+                  aria-label="Close">×</button>
+        </header>
+
+        <div class="overlayBody">
+          <iframe
+            src="https://d3at7kzws0mw3g.cloudfront.net/video/Vision360.html?d=252831-462"
+            loading="eager"
+            referrerpolicy="no-referrer"
+            allowfullscreen>
+          </iframe>
+        </div>
       </div>
     </section>
 
