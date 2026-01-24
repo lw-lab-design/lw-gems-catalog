@@ -12,13 +12,15 @@
 
   <!-- =========================================================
        Product Data (single source of truth)
-       Keep per-product specs here (read by catalog.js if needed)
+       IMPORTANT: mediaDir points to the correct folder
        ========================================================= -->
   <script type="application/json" id="productData">
   {
     "mpn": "LW-2026-pear-pebble-ring",
     "title": "Pear Pebble Ring",
     "leadTimeDays": 30,
+    "mediaDir": "assets/media/LW-2026-058/",
+    "hero": ["hero-01.jpg","hero-02.jpg"],
     "pricing": {
       "USD": [
         { "label": "Rose Gold",  "price": 14500, "metal": "18K Rose Gold",  "weight": "approx. 18 g" },
@@ -41,7 +43,7 @@
         "inscription": "GIA *****52073"
       },
       "assets": {
-        "giaReportImage": "assets/media/gia-report-LW-2026-pear-pebble-ring.jpg",
+        "giaReportImage": "assets/media/LW-2026-058/gia-report-LW-2026-pear-pebble-ring.jpg",
         "diamond360Url": "https://d3at7kzws0mw3g.cloudfront.net/video/Vision360.html?d=252831-462"
       }
     }
@@ -54,11 +56,19 @@
       <div class="media" id="mediaRoot" aria-live="polite">
 
         <figure class="slide is-active" aria-label="Image 1">
-          <img src="assets/media/hero-01.jpg" alt="Pear Pebble Ring — image 1" loading="eager" decoding="async">
+          <img
+            src="assets/media/LW-2026-058/hero-01.jpg"
+            alt="Pear Pebble Ring — image 1"
+            loading="eager"
+            decoding="async">
         </figure>
 
         <figure class="slide" aria-label="Image 2">
-          <img src="assets/media/hero-02.jpg" alt="Pear Pebble Ring — image 2" loading="lazy" decoding="async">
+          <img
+            src="assets/media/LW-2026-058/hero-02.jpg"
+            alt="Pear Pebble Ring — image 2"
+            loading="lazy"
+            decoding="async">
         </figure>
 
       </div>
@@ -142,7 +152,6 @@
             </dl>
           </section>
 
-          <!-- Added: Diamond data (from report) -->
           <section class="card">
             <h2>Diamond (report summary)</h2>
             <dl class="spec">
@@ -167,11 +176,10 @@
               <li>Replacement-value workflow supported (where applicable, third-party appraisal).</li>
             </ul>
 
-            <!-- Updated: all technical assets open in the generic viewer -->
             <div class="ctaRow">
               <button class="cta ghost"
                       type="button"
-                      data-viewer-url="assets/media/gia-report-LW-2026-pear-pebble-ring.jpg"
+                      data-viewer-url="assets/media/LW-2026-058/gia-report-LW-2026-pear-pebble-ring.jpg"
                       data-viewer-title="GIA report (reference)">
                 View GIA report
               </button>
@@ -199,26 +207,13 @@
           </section>
 
           <section class="card">
-            <h2>Media set</h2>
-            <ul class="list">
-              <li>4 product photos</li>
-              <li>1 day video</li>
-              <li>1 GIA report photo</li>
-            </ul>
-          </section>
-
-          <section class="card">
             <h2>Inquiry</h2>
-            <p class="para">
-              Request a confirmed spec sheet and final quote.
-            </p>
+            <p class="para">Request a confirmed spec sheet and final quote.</p>
             <div class="ctaRow">
               <a class="cta" href="mailto:contact@lw-gems.com?subject=Inquiry%20—%20LW-2026-pear-pebble-ring">
                 Email inquiry
               </a>
-              <button class="cta ghost" id="copyMPN" type="button">
-                Copy MPN
-              </button>
+              <button class="cta ghost" id="copyMPN" type="button">Copy MPN</button>
             </div>
           </section>
 
@@ -229,12 +224,7 @@
     </section>
 
     <!-- Technical Viewer Overlay (generic) -->
-    <section id="techViewer"
-             role="dialog"
-             aria-modal="true"
-             aria-label="Technical viewer"
-             hidden>
-
+    <section id="techViewer" role="dialog" aria-modal="true" aria-label="Technical viewer" hidden>
       <div class="overlayScrim" id="techViewerScrim"></div>
 
       <div class="overlayPanel" role="document">
@@ -242,49 +232,30 @@
           <div class="overlayTitle" id="techViewerTitle">Technical viewer</div>
 
           <div class="overlayActions">
-            <a class="overlayOpenNew"
-               id="techViewerOpenNew"
-               href="#"
-               target="_blank"
-               rel="noopener">
+            <a class="overlayOpenNew" id="techViewerOpenNew" href="#" target="_blank" rel="noopener">
               Open in new tab
             </a>
 
-            <button class="overlayClose"
-                    id="techViewerClose"
-                    type="button"
-                    aria-label="Close">
-              ×
-            </button>
+            <button class="overlayClose" id="techViewerClose" type="button" aria-label="Close">×</button>
           </div>
         </header>
 
         <div class="overlayBody">
-
-          <!-- Image viewer (for GIA JPG / PNG) -->
-          <img
-            id="techViewerImg"
-            class="viewerImg"
-            alt=""
-            hidden>
-
-          <!-- Frame viewer (for 360 / HTML / PDF) -->
-          <iframe
-            id="techViewerFrame"
-            class="viewerFrame"
-            src=""
-            loading="eager"
-            referrerpolicy="no-referrer"
-            allowfullscreen>
-          </iframe>
-
+          <img id="techViewerImg" class="viewerImg" alt="" hidden>
+          <iframe id="techViewerFrame"
+                  class="viewerFrame"
+                  src=""
+                  loading="eager"
+                  referrerpolicy="no-referrer"
+                  allowfullscreen></iframe>
         </div>
       </div>
     </section>
 
   </main>
 
+  <!-- IMPORTANT: product page must load product.js (NOT catalog.js) -->
   <script src="assets/js/access.js"></script>
-  <script src="assets/js/catalog.js"></script>
+  <script src="assets/js/product.js"></script>
 </body>
 </html>
