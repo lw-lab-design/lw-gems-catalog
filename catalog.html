@@ -13,18 +13,15 @@
     <header class="catalogHeader">
       <h1 class="catalogTitle">LW Private Catalog</h1>
       <p class="catalogSub">Documentation-ready. Report-linked. Standards-aligned.</p>
+      <p id="catalogMsg" style="margin-top:10px;font-size:12px;opacity:.75">
+        Loading catalog…
+      </p>
     </header>
 
     <section id="catalogGrid" class="catalogGrid" aria-label="Catalog grid"></section>
-
-    <!-- Optional: simple empty-state (only shows if JS injects text) -->
-    <p id="catalogMsg" class="catalogMsg" hidden></p>
   </main>
 
-  <!-- Access gate (must run first) -->
-  <script src="assets/js/access.js"></script>
-
-  <!-- Catalog listing -->
+  <script src="assets/js/access.js" defer></script>
   <script src="assets/js/catalog.js" defer></script>
 </body>
 </html>
