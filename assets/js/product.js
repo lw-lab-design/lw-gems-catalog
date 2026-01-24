@@ -258,6 +258,22 @@
     }
   }
 
+  // ------------------------------------------------------------
+  // Force new-tab buttons (no overlay)
+  // Buttons must have: data-open-newtab="1" and data-url="https://..."
+  // ------------------------------------------------------------
+  document.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-open-newtab='1']");
+    if (!btn) return;
+
+    const url = btn.getAttribute("data-url");
+    if (!url) return;
+
+    e.preventDefault();
+    e.stopPropagation(); // prevent falling into the viewer handler below
+    window.open(url, "_blank", "noopener");
+  });
+
   // Click delegation: any element with data-viewer-url opens overlay
   document.addEventListener("click", (e) => {
     const trigger = e.target.closest("[data-viewer-url]");
