@@ -1,9 +1,4 @@
 (() => {
-  // =========================
-  // PRODUCT (FICHE) SCRIPT
-  // slider + sheet + pricing + viewer + copyMPN
-  // =========================
-
   // ---------- SLIDER ----------
   const slides = Array.from(document.querySelectorAll(".slide"));
   const dotsWrap = document.getElementById("dots");
@@ -17,19 +12,19 @@
     if (!slides.length) return;
 
     const leavingVideo = slides[index]?.querySelector("video");
-    if (leavingVideo) leavingVideo.pause?.();
+    if (leavingVideo) leavingVideo.pause();
 
-    slides[index]?.classList.remove("is-active");
-    dots[index]?.classList.remove("is-active");
+    slides[index].classList.remove("is-active");
+    if (dots[index]) dots[index].classList.remove("is-active");
 
     index = (i + slides.length) % slides.length;
 
-    slides[index]?.classList.add("is-active");
-    dots[index]?.classList.add("is-active");
+    slides[index].classList.add("is-active");
+    if (dots[index]) dots[index].classList.add("is-active");
   }
 
   if (slides.length && dotsWrap) {
-    dotsWrap.innerHTML = ""; // evita duplicar dots si el script se ejecuta dos veces
+    dotsWrap.innerHTML = ""; // prevent duplicates if hot reload
     slides.forEach((_, i) => {
       const d = document.createElement("button");
       d.type = "button";
@@ -41,8 +36,8 @@
     dots = Array.from(dotsWrap.children);
   }
 
-  prev?.addEventListener("click", () => setActive(index - 1));
-  next?.addEventListener("click", () => setActive(index + 1));
+  if (prev) prev.addEventListener("click", () => setActive(index - 1));
+  if (next) next.addEventListener("click", () => setActive(index + 1));
 
   // ---------- FICHE (SHEET) ----------
   const openBtn = document.getElementById("openSheet");
@@ -50,8 +45,10 @@
   const sheet = document.getElementById("sheet");
   const scrim = document.getElementById("sheetScrim");
 
-  // Si esta página no es una ficha, salimos sin romper nada.
-  if (!sheet || !openBtn) return;
+  if (!sheet || !openBtn) {
+    // If this page is not a fiche template, do nothing.
+    return;
+  }
 
   let lastFocus = null;
 
@@ -76,12 +73,12 @@
     sheet.hidden = true;
     openBtn.setAttribute("aria-expanded", "false");
     lockScroll(false);
-    lastFocus?.focus?.();
+    if (lastFocus && typeof lastFocus.focus === "function") lastFocus.focus();
   }
 
   openBtn.addEventListener("click", openSheet);
-  closeBtn?.addEventListener("click", closeSheet);
-  scrim?.addEventListener("click", closeSheet);
+  if (closeBtn) closeBtn.addEventListener("click", closeSheet);
+  if (scrim) scrim.addEventListener("click", closeSheet);
 
   document.addEventListener("keydown", (e) => {
     if (sheet.hidden) return;
@@ -108,11 +105,12 @@
     const price = btn.dataset.price;
     const metal = btn.dataset.metal || "";
     const weight = btn.dataset.weight || "";
+    const lead = btn.dataset.lead || "30 days";
 
     priceEl.textContent = fmtUSD(price);
     priceSubEl.innerHTML =
       `${metal}${metal && weight ? " · " : ""}${weight}` +
-      `<br><span class="sub2">Lead time: 30 days</span>`;
+      `<br><span class="sub2">Lead time: ${lead}</span>`;
 
     segBtns.forEach((b) => b.classList.toggle("is-active", b === btn));
   }
@@ -124,7 +122,7 @@
 
   // ---------- TECH VIEWER (IMG or IFRAME) ----------
   const viewer = document.getElementById("techViewer");
-  if (!viewer) return; // ficha sin viewer: no romper
+  if (!viewer) return;
 
   const viewerScrim = document.getElementById("techViewerScrim");
   const viewerClose = document.getElementById("techViewerClose");
@@ -133,7 +131,7 @@
   const frame = document.getElementById("techViewerFrame");
   const img = document.getElementById("techViewerImg");
 
-  // Note inline (1 sola vez)
+  // Small inline note (created once)
   let noteEl = viewer.querySelector("[data-tech-note]");
   if (!noteEl) {
     noteEl = document.createElement("div");
@@ -146,6 +144,18 @@
   }
 
   let lastFocusViewer = null;
+  let iframeFallbackTimer = null;
+
+  function isImageUrl(url) {
+    const u = String(url || "").toLowerCase();
+    return (
+      u.endsWith(".jpg") ||
+      u.endsWith(".jpeg") ||
+      u.endsWith(".png") ||
+      u.endsWith(".webp") ||
+      u.startsWith("data:image/")
+    );
+  }
 
   function showNote(msg) {
     if (!noteEl) return;
@@ -167,25 +177,14 @@
     document.body.style.overflow = "";
   }
 
-  function isImageUrl(url) {
-    const u = String(url || "").toLowerCase();
-    return (
-      u.endsWith(".jpg") ||
-      u.endsWith(".jpeg") ||
-      u.endsWith(".png") ||
-      u.endsWith(".webp") ||
-      u.startsWith("data:image/")
-    );
-  }
-
   function openViewer(url, title) {
     if (!url) return;
 
     lastFocusViewer = document.activeElement;
 
-    const u = url.toLowerCase();
+    const u = String(url).toLowerCase();
 
-    // Hosts típicos que no permiten iframe → abrir directo
+    // Hosts that commonly block iframe
     const forceNewTab =
       u.includes("cloudfront.net") ||
       u.includes("vision360") ||
@@ -197,8 +196,8 @@
       return;
     }
 
-    titleEl && (titleEl.textContent = title || "Technical viewer");
-    if (openNew) openNew.href = url;
+    titleEl.textContent = title || "Technical viewer";
+    openNew.href = url;
 
     const isImg = isImageUrl(url);
 
@@ -212,14 +211,22 @@
         img.alt = title || "";
         img.hidden = false;
       }
+      showNote("");
     } else {
       if (img) {
         img.src = "";
         img.hidden = true;
       }
       if (frame) {
-        frame.src = url;
         frame.hidden = false;
+        frame.src = url;
+
+        // if iframe fails silently, user still can open in new tab
+        showNote("If this content does not load here, use “Open in new tab”.");
+        if (iframeFallbackTimer) window.clearTimeout(iframeFallbackTimer);
+        iframeFallbackTimer = window.setTimeout(() => {
+          // keep note visible; do nothing else
+        }, 1200);
       }
     }
 
@@ -231,6 +238,9 @@
     viewer.hidden = true;
     showNote("");
 
+    if (iframeFallbackTimer) window.clearTimeout(iframeFallbackTimer);
+    iframeFallbackTimer = null;
+
     if (frame) {
       frame.src = "";
       frame.hidden = false;
@@ -239,12 +249,16 @@
       img.src = "";
       img.hidden = true;
     }
-    if (openNew) openNew.href = "#";
 
+    openNew.href = "#";
     lockScrollOff();
-    lastFocusViewer?.focus?.();
+
+    if (lastFocusViewer && typeof lastFocusViewer.focus === "function") {
+      lastFocusViewer.focus();
+    }
   }
 
+  // Click delegation: any element with data-viewer-url opens overlay
   document.addEventListener("click", (e) => {
     const trigger = e.target.closest("[data-viewer-url]");
     if (!trigger) return;
@@ -266,9 +280,13 @@
     }
   });
 
-  frame?.addEventListener("load", () => showNote(""));
+  frame?.addEventListener("load", () => {
+    showNote("");
+    if (iframeFallbackTimer) window.clearTimeout(iframeFallbackTimer);
+    iframeFallbackTimer = null;
+  });
 
-  // ---------- COPY MPN ----------
+  // ---------- Copy MPN ----------
   const copyBtn = document.getElementById("copyMPN");
   if (copyBtn) {
     copyBtn.addEventListener("click", async () => {
@@ -279,7 +297,7 @@
         copyBtn.textContent = "Copied";
         setTimeout(() => (copyBtn.textContent = "Copy MPN"), 1200);
       } catch {
-        // no-op
+        // ignore
       }
     });
   }
