@@ -1,7 +1,7 @@
 // assets/js/catalog.js
 (() => {
   function getBasePath() {
-    // /lw-gems-catalog/catalog.html  ->  /lw-gems-catalog/
+    // /lw-gems-catalog/catalog.html -> /lw-gems-catalog/
     const parts = (location.pathname || "/").split("/").filter(Boolean);
     return parts.length ? `/${parts[0]}/` : "/";
   }
@@ -15,60 +15,60 @@
   async function run() {
     const base = getBasePath();
     const grid = document.getElementById("catalogGrid");
-    if (!grid) return;
-
     const msg = document.getElementById("catalogMsg");
 
+    if (!grid) return;
+
     try {
-      // IMPORTANTE: NO usar "/assets/..." (ruta absoluta)
+      // NUNCA "/assets/..." en GitHub Pages project sites
       const url = join(base, "assets/data/products.json");
       const res = await fetch(url, { cache: "no-store" });
-      if (!res.ok) throw new Error(`products.json not found (${res.status}) @ ${url}`);
+
+      if (!res.ok) {
+        throw new Error(`Fetch failed ${res.status}: ${url}`);
+      }
 
       const data = await res.json();
       const items = Array.isArray(data?.items) ? data.items : [];
 
       if (!items.length) {
-        if (msg) {
-          msg.textContent = "No items found in products.json.";
-          msg.hidden = false;
-        }
+        if (msg) msg.textContent = "products.json loaded, but items[] is empty.";
         return;
       }
 
       grid.innerHTML = "";
 
       items.forEach((item) => {
+        const title = item?.title || "Untitled";
         const ficheRel = item?.links?.ficheUrl || "#";
-        const imgRel =
-          (item?.mediaDir || "") + (item?.hero?.[0] || "");
+        const mediaDir = item?.mediaDir || "";
+        const hero0 = item?.hero?.[0] || "";
 
         const card = document.createElement("a");
         card.className = "card";
         card.href = ficheRel.startsWith("http") ? ficheRel : join(base, ficheRel);
 
         const img = document.createElement("img");
+        const imgRel = mediaDir + hero0;
         img.src = imgRel.startsWith("http") ? imgRel : join(base, imgRel);
-        img.alt = item?.title || "Catalog item";
+        img.alt = title;
         img.loading = "lazy";
         img.decoding = "async";
 
         const h3 = document.createElement("h3");
-        h3.textContent = item?.title || "Untitled";
+        h3.textContent = title;
 
         card.append(img, h3);
         grid.appendChild(card);
       });
+
+      if (msg) msg.textContent = `Loaded ${items.length} items.`;
     } catch (err) {
       console.error(err);
-      if (msg) {
-        msg.textContent = "Catalog failed to load (products.json path). Check console.";
-        msg.hidden = false;
-      }
+      if (msg) msg.textContent = `Catalog error: ${err.message}`;
     }
   }
 
-  // Por si el script no está deferido en algún momento
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", run);
   } else {
