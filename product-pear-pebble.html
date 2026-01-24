@@ -12,7 +12,7 @@
 
   <!-- =========================================================
        Product Data (single source of truth)
-       IMPORTANT: mediaDir points to the correct folder
+       Only update this block per product
        ========================================================= -->
   <script type="application/json" id="productData">
   {
@@ -43,7 +43,7 @@
         "inscription": "GIA *****52073"
       },
       "assets": {
-        "giaReportImage": "assets/media/LW-2026-058/gia-report-LW-2026-pear-pebble-ring.jpg",
+        "giaReportImage": "gia-report-LW-2026-pear-pebble-ring.jpg",
         "diamond360Url": "https://d3at7kzws0mw3g.cloudfront.net/video/Vision360.html?d=252831-462"
       }
     }
@@ -55,9 +55,11 @@
     <section class="viewer" aria-label="Media viewer">
       <div class="media" id="mediaRoot" aria-live="polite">
 
+        <!-- NOTE: src will be set by product.js from productData.mediaDir + hero[] -->
         <figure class="slide is-active" aria-label="Image 1">
           <img
-            src="assets/media/LW-2026-058/hero-01.jpg"
+            data-hero-index="0"
+            src=""
             alt="Pear Pebble Ring — image 1"
             loading="eager"
             decoding="async">
@@ -65,7 +67,8 @@
 
         <figure class="slide" aria-label="Image 2">
           <img
-            src="assets/media/LW-2026-058/hero-02.jpg"
+            data-hero-index="1"
+            src=""
             alt="Pear Pebble Ring — image 2"
             loading="lazy"
             decoding="async">
@@ -177,17 +180,21 @@
             </ul>
 
             <div class="ctaRow">
+              <!-- GIA opens in overlay as image -->
               <button class="cta ghost"
                       type="button"
-                      data-viewer-url="assets/media/LW-2026-058/gia-report-LW-2026-pear-pebble-ring.jpg"
+                      id="btnGia"
+                      data-viewer-url=""
                       data-viewer-title="GIA report (reference)">
                 View GIA report
               </button>
 
+              <!-- 360 ALWAYS opens in new tab (no overlay) -->
               <button class="cta ghost"
                       type="button"
-                      data-viewer-url="https://d3at7kzws0mw3g.cloudfront.net/video/Vision360.html?d=252831-462"
-                      data-viewer-title="Diamond 360° reference">
+                      id="btn360"
+                      data-open-newtab="1"
+                      data-url="">
                 View diamond 360°
               </button>
             </div>
@@ -254,8 +261,36 @@
 
   </main>
 
-  <!-- IMPORTANT: product page must load product.js (NOT catalog.js) -->
   <script src="assets/js/access.js"></script>
   <script src="assets/js/product.js"></script>
+
+  <!-- tiny bootstrap: set hero src + set GIA/360 URLs from productData -->
+  <script>
+    (() => {
+      const el = document.getElementById("productData");
+      if (!el) return;
+      let p;
+      try { p = JSON.parse(el.textContent || "{}"); } catch { return; }
+
+      const mediaDir = p.mediaDir || "";
+      const hero = Array.isArray(p.hero) ? p.hero : [];
+
+      document.querySelectorAll("img[data-hero-index]").forEach(img => {
+        const i = Number(img.getAttribute("data-hero-index"));
+        if (!Number.isFinite(i) || !hero[i]) return;
+        img.src = mediaDir + hero[i];
+      });
+
+      const giaFile = p?.diamond?.assets?.giaReportImage || "";
+      const giaUrl = giaFile.startsWith("http") ? giaFile : (mediaDir + giaFile);
+      const d360 = p?.diamond?.assets?.diamond360Url || "";
+
+      const btnGia = document.getElementById("btnGia");
+      if (btnGia) btnGia.setAttribute("data-viewer-url", giaUrl);
+
+      const btn360 = document.getElementById("btn360");
+      if (btn360) btn360.setAttribute("data-url", d360);
+    })();
+  </script>
 </body>
 </html>
