@@ -1,6 +1,6 @@
 (async () => {
   try {
-    // Ruta RELATIVA (correcta para GitHub Pages / project pages)
+    // Ruta RELATIVA (correcta para GitHub Pages de project repo)
     const res = await fetch("assets/data/products.json", { cache: "no-store" });
     if (!res.ok) throw new Error("products.json not found");
 
@@ -28,7 +28,6 @@
       card.append(img, h3);
       grid.appendChild(card);
     });
-
   } catch (err) {
     console.error(err);
     const grid = document.getElementById("catalogGrid");
