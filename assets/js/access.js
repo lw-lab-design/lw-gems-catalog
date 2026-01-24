@@ -1,17 +1,15 @@
 (() => {
-  // Works on GitHub Pages project sites (e.g. /lw-gems-catalog/)
+  // If not authorized, redirect to index.html
+  const ok = sessionStorage.getItem("lw_access") === "ok";
+  if (ok) return;
+
+  // Detect GitHub Pages project base: /<repo>/
   const parts = (location.pathname || "/").split("/").filter(Boolean);
   const base = parts.length ? `/${parts[0]}/` : "/";
 
-  const path = (location.pathname || "").toLowerCase();
-  const isProtected =
-    path.endsWith("/catalog.html") ||
-    path.includes("/p/");
+  // Avoid infinite loop if already on index.html
+  const path = location.pathname || "";
+  if (path.endsWith("/index.html") || path === base) return;
 
-  if (!isProtected) return;
-
-  const ok = sessionStorage.getItem("lw_access") === "ok";
-  if (!ok) {
-    location.replace(base + "index.html");
-  }
+  window.location.replace(base + "index.html");
 })();
