@@ -1,4 +1,47 @@
 (() => {
+  // ---------- Read productData + hydrate media ----------
+  function readProductData() {
+    const el = document.getElementById("productData");
+    if (!el) return null;
+    try { return JSON.parse(el.textContent || "{}"); } catch { return null; }
+  }
+
+  const P = readProductData();
+  const mediaDir = P?.mediaDir || "";
+  const hero = Array.isArray(P?.hero) ? P.hero : [];
+
+  // Fill hero images if template uses data-hero-index
+  document.querySelectorAll("img[data-hero-index]").forEach((img) => {
+    const i = Number(img.getAttribute("data-hero-index"));
+    if (!Number.isFinite(i)) return;
+    if (!hero[i]) return;
+    img.src = mediaDir + hero[i];
+  });
+
+  // Set documentation URLs (buttons)
+  const giaFile = P?.diamond?.assets?.giaReportImage || "";
+  const giaUrl = giaFile
+    ? (String(giaFile).startsWith("http") ? giaFile : (mediaDir + giaFile))
+    : "";
+
+  const d360Url = P?.diamond?.assets?.diamond360Url || "";
+
+  const btnGia = document.getElementById("btnGia");
+  if (btnGia && giaUrl) btnGia.setAttribute("data-viewer-url", giaUrl);
+
+  const btn360 = document.getElementById("btn360");
+  if (btn360 && d360Url) btn360.setAttribute("data-url", d360Url);
+
+  // ---------- Force new-tab buttons (no overlay) ----------
+  document.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-open-newtab='1']");
+    if (!btn) return;
+    const url = btn.getAttribute("data-url");
+    if (!url) return;
+    e.preventDefault();
+    window.open(url, "_blank", "noopener");
+  });
+
   // ---------- SLIDER ----------
   const slides = Array.from(document.querySelectorAll(".slide"));
   const dotsWrap = document.getElementById("dots");
@@ -24,7 +67,7 @@
   }
 
   if (slides.length && dotsWrap) {
-    dotsWrap.innerHTML = ""; // prevent duplicates if hot reload
+    dotsWrap.innerHTML = "";
     slides.forEach((_, i) => {
       const d = document.createElement("button");
       d.type = "button";
@@ -45,10 +88,7 @@
   const sheet = document.getElementById("sheet");
   const scrim = document.getElementById("sheetScrim");
 
-  if (!sheet || !openBtn) {
-    // If this page is not a fiche template, do nothing.
-    return;
-  }
+  if (!sheet || !openBtn) return;
 
   let lastFocus = null;
 
@@ -105,7 +145,7 @@
     const price = btn.dataset.price;
     const metal = btn.dataset.metal || "";
     const weight = btn.dataset.weight || "";
-    const lead = btn.dataset.lead || "30 days";
+    const lead = (P?.leadTimeDays ? `${P.leadTimeDays} days` : "30 days");
 
     priceEl.textContent = fmtUSD(price);
     priceSubEl.innerHTML =
@@ -131,41 +171,11 @@
   const frame = document.getElementById("techViewerFrame");
   const img = document.getElementById("techViewerImg");
 
-  // Small inline note (created once)
-  let noteEl = viewer.querySelector("[data-tech-note]");
-  if (!noteEl) {
-    noteEl = document.createElement("div");
-    noteEl.setAttribute("data-tech-note", "1");
-    noteEl.style.cssText =
-      "padding:10px 16px;border-bottom:1px solid rgba(255,255,255,.08);" +
-      "font-size:12px;opacity:.78;display:none;";
-    const header = viewer.querySelector(".overlayHeader");
-    header?.insertAdjacentElement("afterend", noteEl);
-  }
-
   let lastFocusViewer = null;
-  let iframeFallbackTimer = null;
 
   function isImageUrl(url) {
     const u = String(url || "").toLowerCase();
-    return (
-      u.endsWith(".jpg") ||
-      u.endsWith(".jpeg") ||
-      u.endsWith(".png") ||
-      u.endsWith(".webp") ||
-      u.startsWith("data:image/")
-    );
-  }
-
-  function showNote(msg) {
-    if (!noteEl) return;
-    if (!msg) {
-      noteEl.style.display = "none";
-      noteEl.textContent = "";
-      return;
-    }
-    noteEl.textContent = msg;
-    noteEl.style.display = "block";
+    return u.endsWith(".jpg") || u.endsWith(".jpeg") || u.endsWith(".png") || u.endsWith(".webp") || u.startsWith("data:image/");
   }
 
   function lockScrollOn() {
@@ -179,55 +189,25 @@
 
   function openViewer(url, title) {
     if (!url) return;
-
     lastFocusViewer = document.activeElement;
-
-    const u = String(url).toLowerCase();
-
-    // Hosts that commonly block iframe
-    const forceNewTab =
-      u.includes("cloudfront.net") ||
-      u.includes("vision360") ||
-      u.includes("v360") ||
-      u.includes("iframe-buster");
-
-    if (forceNewTab) {
-      window.open(url, "_blank", "noopener");
-      return;
-    }
 
     titleEl.textContent = title || "Technical viewer";
     openNew.href = url;
 
     const isImg = isImageUrl(url);
-
     if (isImg) {
-      if (frame) {
-        frame.src = "";
-        frame.hidden = true;
-      }
-      if (img) {
-        img.src = url;
-        img.alt = title || "";
-        img.hidden = false;
-      }
-      showNote("");
-    } else {
-      if (img) {
-        img.src = "";
-        img.hidden = true;
-      }
-      if (frame) {
-        frame.hidden = false;
-        frame.src = url;
+      frame.src = "";
+      frame.hidden = true;
 
-        // if iframe fails silently, user still can open in new tab
-        showNote("If this content does not load here, use “Open in new tab”.");
-        if (iframeFallbackTimer) window.clearTimeout(iframeFallbackTimer);
-        iframeFallbackTimer = window.setTimeout(() => {
-          // keep note visible; do nothing else
-        }, 1200);
-      }
+      img.src = url;
+      img.alt = title || "";
+      img.hidden = false;
+    } else {
+      img.src = "";
+      img.hidden = true;
+
+      frame.hidden = false;
+      frame.src = url;
     }
 
     viewer.hidden = false;
@@ -236,19 +216,12 @@
 
   function closeViewer() {
     viewer.hidden = true;
-    showNote("");
 
-    if (iframeFallbackTimer) window.clearTimeout(iframeFallbackTimer);
-    iframeFallbackTimer = null;
+    frame.src = "";
+    frame.hidden = false;
 
-    if (frame) {
-      frame.src = "";
-      frame.hidden = false;
-    }
-    if (img) {
-      img.src = "";
-      img.hidden = true;
-    }
+    img.src = "";
+    img.hidden = true;
 
     openNew.href = "#";
     lockScrollOff();
@@ -258,23 +231,6 @@
     }
   }
 
-  // ------------------------------------------------------------
-  // Force new-tab buttons (no overlay)
-  // Buttons must have: data-open-newtab="1" and data-url="https://..."
-  // ------------------------------------------------------------
-  document.addEventListener("click", (e) => {
-    const btn = e.target.closest("[data-open-newtab='1']");
-    if (!btn) return;
-
-    const url = btn.getAttribute("data-url");
-    if (!url) return;
-
-    e.preventDefault();
-    e.stopPropagation(); // prevent falling into the viewer handler below
-    window.open(url, "_blank", "noopener");
-  });
-
-  // Click delegation: any element with data-viewer-url opens overlay
   document.addEventListener("click", (e) => {
     const trigger = e.target.closest("[data-viewer-url]");
     if (!trigger) return;
@@ -296,25 +252,17 @@
     }
   });
 
-  frame?.addEventListener("load", () => {
-    showNote("");
-    if (iframeFallbackTimer) window.clearTimeout(iframeFallbackTimer);
-    iframeFallbackTimer = null;
-  });
-
   // ---------- Copy MPN ----------
   const copyBtn = document.getElementById("copyMPN");
   if (copyBtn) {
     copyBtn.addEventListener("click", async () => {
-      const mpn = document.querySelector(".pill strong")?.textContent?.trim() || "";
+      const mpn = document.querySelector(".pill strong")?.textContent?.trim() || (P?.mpn || "");
       if (!mpn) return;
       try {
         await navigator.clipboard.writeText(mpn);
         copyBtn.textContent = "Copied";
         setTimeout(() => (copyBtn.textContent = "Copy MPN"), 1200);
-      } catch {
-        // ignore
-      }
+      } catch {}
     });
   }
 })();
