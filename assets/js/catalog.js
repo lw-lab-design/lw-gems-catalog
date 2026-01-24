@@ -1,52 +1,53 @@
 (async () => {
+  const status = document.getElementById("catalogStatus");
   const grid = document.getElementById("catalogGrid");
   if (!grid) return;
 
-  // optional: show error text in UI
-  const showError = (msg) => {
-    const p = document.createElement("p");
-    p.className = "catalogError";
-    p.textContent = msg;
-    grid.insertAdjacentElement("beforebegin", p);
-  };
-
   try {
-    // IMPORTANT: relative path works in GitHub Pages subpaths
-    const res = await fetch("assets/data/products.json", { cache: "no-store" });
+    // Ruta RELATIVA (clave en GitHub Pages)
+    const url = new URL("assets/data/products.json", window.location.href);
+    const res = await fetch(url.toString(), { cache: "no-store" });
     if (!res.ok) throw new Error(`products.json not found (${res.status})`);
 
     const data = await res.json();
-    const items = Array.isArray(data.items) ? data.items : [];
+    const items = Array.isArray(data?.items) ? data.items : [];
 
     if (!items.length) {
-      showError("Catalog error: No items found in products.json.");
+      if (status) status.textContent = "No items found in products.json.";
       return;
     }
 
+    const frag = document.createDocumentFragment();
+
     items.forEach((item) => {
-      const href = item?.links?.ficheUrl || "#";
-      const title = item?.title || "Untitled";
+      const ficheUrl = item?.links?.ficheUrl;
       const mediaDir = item?.mediaDir || "";
       const hero0 = item?.hero?.[0] || "";
+      const title = item?.title || "Untitled";
 
       const card = document.createElement("a");
       card.className = "card";
-      card.href = href;
+      card.href = ficheUrl || "#";
 
       const img = document.createElement("img");
-      img.src = mediaDir + hero0;
-      img.alt = title;
       img.loading = "lazy";
       img.decoding = "async";
+      img.alt = title;
+      img.src = mediaDir + hero0;
 
       const h3 = document.createElement("h3");
       h3.textContent = title;
 
       card.append(img, h3);
-      grid.appendChild(card);
+      frag.appendChild(card);
     });
+
+    grid.innerHTML = "";
+    grid.appendChild(frag);
+    if (status) status.textContent = "";
+
   } catch (err) {
     console.error(err);
-    showError("Catalog error: " + (err?.message || "Unknown error"));
+    if (status) status.textContent = `Catalog error: ${err.message}`;
   }
 })();
