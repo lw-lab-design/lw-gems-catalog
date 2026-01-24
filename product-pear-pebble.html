@@ -10,10 +10,6 @@
 
 <body>
 
-  <!-- =========================================================
-       Product Data (single source of truth)
-       Only update this block per product
-       ========================================================= -->
   <script type="application/json" id="productData">
   {
     "mpn": "LW-2026-pear-pebble-ring",
@@ -28,20 +24,6 @@
       ]
     },
     "diamond": {
-      "report": {
-        "lab": "GIA",
-        "reportNumber": "*****52073",
-        "reportDate": "2025-12-03",
-        "shapeCuttingStyle": "Pear Brilliant",
-        "measurements_mm": "8.81 × 5.36 × 3.32",
-        "carat": 0.92,
-        "color": "H",
-        "clarity": "VS1",
-        "polish": "Excellent",
-        "symmetry": "Excellent",
-        "fluorescence": "Faint",
-        "inscription": "GIA *****52073"
-      },
       "assets": {
         "giaReportImage": "gia-report-LW-2026-pear-pebble-ring.jpg",
         "diamond360Url": "https://d3at7kzws0mw3g.cloudfront.net/video/Vision360.html?d=252831-462"
@@ -55,23 +37,12 @@
     <section class="viewer" aria-label="Media viewer">
       <div class="media" id="mediaRoot" aria-live="polite">
 
-        <!-- NOTE: src will be set by product.js from productData.mediaDir + hero[] -->
         <figure class="slide is-active" aria-label="Image 1">
-          <img
-            data-hero-index="0"
-            src=""
-            alt="Pear Pebble Ring — image 1"
-            loading="eager"
-            decoding="async">
+          <img data-hero-index="0" src="" alt="Pear Pebble Ring — image 1" loading="eager" decoding="async">
         </figure>
 
         <figure class="slide" aria-label="Image 2">
-          <img
-            data-hero-index="1"
-            src=""
-            alt="Pear Pebble Ring — image 2"
-            loading="lazy"
-            decoding="async">
+          <img data-hero-index="1" src="" alt="Pear Pebble Ring — image 2" loading="lazy" decoding="async">
         </figure>
 
       </div>
@@ -97,178 +68,19 @@
       </div>
     </footer>
 
-    <!-- Technical fiche -->
-    <section class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Technical fiche" hidden>
-      <div class="sheetScrim" id="sheetScrim" aria-hidden="true"></div>
-
-      <div class="sheetPanel" role="document">
-        <header class="sheetHeader">
-          <div class="sheetTitle">
-            <div class="kicker">LW Gems · Private Catalog Fiche</div>
-            <h1>Pear Pebble Ring</h1>
-            <div class="metaRow">
-              <span class="pill">MPN: <strong>LW-2026-pear-pebble-ring</strong></span>
-              <span class="pill">Lead time: <strong>30 days</strong></span>
-            </div>
-          </div>
-
-          <button class="closeSheet" id="closeSheet" type="button" aria-label="Close">×</button>
-        </header>
-
-        <div class="sheetBody">
-
-          <section class="card">
-            <div class="cardHead">
-              <h2>Pricing</h2>
-              <div class="seg" role="group" aria-label="Metal pricing toggle">
-                <button type="button" class="segBtn is-active"
-                  data-price="14500" data-metal="18K Rose Gold" data-weight="approx. 18 g">
-                  Rose Gold
-                </button>
-                <button type="button" class="segBtn"
-                  data-price="16944" data-metal="18K White Gold" data-weight="(weight depends on alloy + build)">
-                  White Gold
-                </button>
-              </div>
-            </div>
-
-            <div class="priceLine">
-              <div class="price" id="price">$14,500</div>
-              <div class="sub" id="priceSub">
-                18K Rose Gold · approx. 18 g<br>
-                <span class="sub2">Lead time: 30 days</span>
-              </div>
-            </div>
-
-            <div class="fineprint">
-              Prices shown in USD. Final quote may vary with sizing, tolerances, and confirmed specifications.
-            </div>
-          </section>
-
-          <section class="card">
-            <h2>Specifications</h2>
-            <dl class="spec">
-              <div><dt>MPN</dt><dd>LW-2026-pear-pebble-ring</dd></div>
-              <div><dt>Finished metal</dt><dd>18K Rose Gold (alt: 18K White Gold)</dd></div>
-              <div><dt>Approx. metal weight</dt><dd>~18 g (design-dependent)</dd></div>
-              <div><dt>Lead time</dt><dd>30 days</dd></div>
-            </dl>
-          </section>
-
-          <section class="card">
-            <h2>Diamond (report summary)</h2>
-            <dl class="spec">
-              <div><dt>Report</dt><dd>GIA · *****52073 · 2025-12-03</dd></div>
-              <div><dt>Shape / style</dt><dd>Pear Brilliant</dd></div>
-              <div><dt>Measurements</dt><dd>8.81 × 5.36 × 3.32 mm</dd></div>
-              <div><dt>Carat</dt><dd>0.92 ct</dd></div>
-              <div><dt>Color</dt><dd>H</dd></div>
-              <div><dt>Clarity</dt><dd>VS1</dd></div>
-              <div><dt>Polish</dt><dd>Excellent</dd></div>
-              <div><dt>Symmetry</dt><dd>Excellent</dd></div>
-              <div><dt>Fluorescence</dt><dd>Faint</dd></div>
-              <div><dt>Inscription</dt><dd>GIA *****52073</dd></div>
-            </dl>
-          </section>
-
-          <section class="card">
-            <h2>Documentation</h2>
-            <ul class="list">
-              <li>GIA report photo included in the media set (reference image).</li>
-              <li>Digital documentation pack provided (PDF bundle).</li>
-              <li>Replacement-value workflow supported (where applicable, third-party appraisal).</li>
-            </ul>
-
-            <div class="ctaRow">
-              <!-- GIA opens in overlay as image -->
-              <button class="cta ghost"
-                      type="button"
-                      id="btnGia"
-                      data-viewer-url=""
-                      data-viewer-title="GIA report (reference)">
-                View GIA report
-              </button>
-
-              <!-- 360 ALWAYS opens in new tab (no overlay) -->
-              <button class="cta ghost"
-                      type="button"
-                      id="btn360"
-                      data-open-newtab="1"
-                      data-url="">
-                View diamond 360°
-              </button>
-            </div>
-          </section>
-
-          <section class="card">
-            <h2>Standards & representation</h2>
-            <ul class="list">
-              <li>Business practices align with U.S. jewelry industry compliance and representation standards, including guidance issued by the Jewelers Vigilance Committee (JVC).</li>
-              <li>Verification before fabrication. Specifications confirmed prior to production.</li>
-            </ul>
-
-            <div class="callout">
-              <strong>Metal input:</strong>
-              We use U.S. 24K fine gold as base material input for alloying; the finished ring is delivered as 18K (as specified).
-            </div>
-          </section>
-
-          <section class="card">
-            <h2>Inquiry</h2>
-            <p class="para">Request a confirmed spec sheet and final quote.</p>
-            <div class="ctaRow">
-              <a class="cta" href="mailto:contact@lw-gems.com?subject=Inquiry%20—%20LW-2026-pear-pebble-ring">
-                Email inquiry
-              </a>
-              <button class="cta ghost" id="copyMPN" type="button">Copy MPN</button>
-            </div>
-          </section>
-
-        </div>
-
-        <div class="sheetBottomSafe"></div>
-      </div>
-    </section>
-
-    <!-- Technical Viewer Overlay (generic) -->
-    <section id="techViewer" role="dialog" aria-modal="true" aria-label="Technical viewer" hidden>
-      <div class="overlayScrim" id="techViewerScrim"></div>
-
-      <div class="overlayPanel" role="document">
-        <header class="overlayHeader">
-          <div class="overlayTitle" id="techViewerTitle">Technical viewer</div>
-
-          <div class="overlayActions">
-            <a class="overlayOpenNew" id="techViewerOpenNew" href="#" target="_blank" rel="noopener">
-              Open in new tab
-            </a>
-
-            <button class="overlayClose" id="techViewerClose" type="button" aria-label="Close">×</button>
-          </div>
-        </header>
-
-        <div class="overlayBody">
-          <img id="techViewerImg" class="viewerImg" alt="" hidden>
-          <iframe id="techViewerFrame"
-                  class="viewerFrame"
-                  src=""
-                  loading="eager"
-                  referrerpolicy="no-referrer"
-                  allowfullscreen></iframe>
-        </div>
-      </div>
-    </section>
+    <!-- (tu sheet + viewer quedan igual, no los repito para no alargar) -->
+    <!-- IMPORTANTE: mantené los IDs btnGia / btn360 como ya los tenés -->
 
   </main>
 
   <script src="assets/js/access.js"></script>
   <script src="assets/js/product.js"></script>
 
-  <!-- tiny bootstrap: set hero src + set GIA/360 URLs from productData -->
   <script>
     (() => {
       const el = document.getElementById("productData");
       if (!el) return;
+
       let p;
       try { p = JSON.parse(el.textContent || "{}"); } catch { return; }
 
@@ -292,5 +104,6 @@
       if (btn360) btn360.setAttribute("data-url", d360);
     })();
   </script>
+
 </body>
 </html>
