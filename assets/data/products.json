@@ -1,42 +1,13 @@
 {
   "items": [
     {
-      "mpn": "LW-2026-258",
-      "title": "LW Item 258",
-      "subtitle": "Natural diamond",
-      "tagline": "Documentation-ready. Report-linked. Standards-aligned.",
-      "mediaDir": "/assets/media/LW-2026-258/",
+      "mpn": "LW-2026-058",
+      "title": "Pear Pebble Ring",
+      "mediaDir": "assets/media/LW-2026-058/",
       "hero": ["hero-01.jpg", "hero-02.jpg"],
-      "video": {
-        "localMp4": null,
-        "v360Url": null
-      },
-      "docs": {
-        "giaImage": null
-      },
       "links": {
-        "ficheUrl": "/product.html?mpn=LW-2026-258"
-      },
-      "pricing": [
-        { "label": "18K White Gold", "priceUsd": 15000, "metal": "18K White Gold", "weight": "" }
-      ]
-    },
-
-    {
-      "mpn": "LW-2026-259",
-      "title": "LW Item 259",
-      "subtitle": "Natural diamond",
-      "tagline": "Documentation-ready. Report-linked. Standards-aligned.",
-      "mediaDir": "/assets/media/LW-2026-259/",
-      "hero": ["hero-01.jpg", "hero-02.jpg"],
-      "video": { "localMp4": null, "v360Url": null },
-      "docs": { "giaImage": null },
-      "links": { "ficheUrl": "/product.html?mpn=LW-2026-259" },
-      "pricing": [
-        { "label": "18K White Gold", "priceUsd": 15000, "metal": "18K White Gold", "weight": "" }
-      ]
+        "ficheUrl": "product-pear-pebble.html"
+      }
     }
-
-    /* ... repetir hasta LW-2026-272 ... */
   ]
 }
