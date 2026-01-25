@@ -11,14 +11,20 @@
   --safe-top: env(safe-area-inset-top, 0px);
   --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
 }
+
 *{ box-sizing:border-box; }
 html,body{ height:100%; }
+
 body{
   margin:0;
   font-family:var(--font);
   background:var(--bg);
   color:var(--fg);
 }
+
+/* =========================
+   STAGE / VIEWER
+   ========================= */
 
 .stage{
   height:100%;
@@ -60,6 +66,10 @@ body{
   display:block;
 }
 
+/* =========================
+   SLIDER NAV
+   ========================= */
+
 .nav{
   position:absolute;
   left:0; right:0;
@@ -81,7 +91,6 @@ body{
   background:rgba(0,0,0,.35);
   color:var(--fg);
   font-size:24px;
-  line-height:1;
   display:grid;
   place-items:center;
   backdrop-filter: blur(10px);
@@ -97,15 +106,21 @@ body{
   background:rgba(0,0,0,.28);
   backdrop-filter: blur(10px);
 }
+
 .dot{
   width:6px;
   height:6px;
   border-radius:999px;
   background:rgba(243,246,250,.28);
 }
-.dot.is-on{ background:rgba(243,246,250,.85); }
+.dot.is-active{
+  background:rgba(243,246,250,.85);
+}
 
-/* Bottom strip: only 2 lines + 1 button */
+/* =========================
+   BOTTOM STRIP
+   ========================= */
+
 .bottom{
   position:sticky;
   bottom:0;
@@ -122,13 +137,14 @@ body{
 }
 
 .twoLines{ min-width:0; }
+
 .l1{
   font-size:14px;
-  letter-spacing:.2px;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
 }
+
 .l2{
   font-size:12px;
   color:var(--muted);
@@ -145,13 +161,15 @@ body{
   padding:10px 14px;
   border-radius:999px;
   font-size:13px;
-  letter-spacing:.2px;
-  white-space:nowrap;
   backdrop-filter: blur(10px);
 }
 
-/* Slide-up sheet */
+/* =========================
+   SHEET (FICHE)
+   ========================= */
+
 .sheet[hidden]{ display:none; }
+
 .sheet{
   position:fixed;
   inset:0;
@@ -168,58 +186,36 @@ body{
   position:absolute;
   left:0; right:0;
   bottom:0;
-  max-height: 86vh;
-  background: var(--panel);
-  border-top-left-radius: 22px;
-  border-top-right-radius: 22px;
-  box-shadow: var(--shadow);
+  max-height:86vh;
+  background:var(--panel);
+  border-top-left-radius:22px;
+  border-top-right-radius:22px;
+  box-shadow:var(--shadow);
   overflow:hidden;
-  transform: translateY(8px);
   animation: rise .18s ease-out forwards;
 }
 
-@keyframes rise{ to{ transform: translateY(0); } }
+@keyframes rise{
+  from{ transform: translateY(12px); }
+  to{ transform: translateY(0); }
+}
 
 .sheetHeader{
   display:flex;
-  align-items:flex-start;
   justify-content:space-between;
   gap:10px;
   padding: calc(14px + var(--safe-top)) var(--pad) 12px;
-  border-bottom: 1px solid var(--line);
+  border-bottom:1px solid var(--line);
   background: rgba(0,0,0,.22);
   backdrop-filter: blur(14px);
 }
 
-.kicker{
-  font-size:11px;
-  color:var(--muted);
-  letter-spacing:.25px;
+.sheetTitle{
+  font-size:14px;
+  opacity:.9;
 }
 
-.sheetTitle h1{
-  margin:6px 0 8px;
-  font-size:18px;
-  font-weight:600;
-  letter-spacing:.2px;
-}
-
-.metaRow{
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
-}
-
-.pill{
-  font-size:12px;
-  color:var(--muted);
-  border:1px solid var(--line);
-  padding:6px 10px;
-  border-radius:999px;
-  background: rgba(255,255,255,.03);
-}
-
-.closeSheet{
+.sheetClose{
   width:42px;
   height:42px;
   border-radius:999px;
@@ -227,40 +223,72 @@ body{
   background:rgba(255,255,255,.05);
   color:var(--fg);
   font-size:22px;
-  line-height:1;
 }
 
 .sheetBody{
-  padding: 14px var(--pad) 16px;
+  padding:14px var(--pad) 16px;
   overflow:auto;
   max-height: calc(86vh - 86px);
 }
 
-.card{
-  border:1px solid var(--line);
-  background: rgba(255,255,255,.03);
-  border-radius: var(--radius);
-  padding: 14px;
-  margin-bottom: 12px;
-}
+/* =========================
+   FICHE CONTENT
+   ========================= */
 
-.card h2{
-  margin:0 0 10px;
-  font-size:13px;
-  letter-spacing:.2px;
-  color: rgba(243,246,250,.92);
-  font-weight:600;
-}
-
-.cardHead{
+.pillRow{
   display:flex;
+  gap:8px;
   align-items:center;
-  justify-content:space-between;
-  gap:12px;
-  margin-bottom: 10px;
+  margin-bottom:12px;
 }
 
-.seg{ display:flex; gap:8px; }
+.pill{
+  font-size:12px;
+  border:1px solid var(--line);
+  padding:6px 10px;
+  border-radius:999px;
+  background: rgba(255,255,255,.03);
+}
+
+.pillBtn{
+  font-size:12px;
+  border:1px solid var(--line);
+  padding:6px 10px;
+  border-radius:999px;
+  background:rgba(255,255,255,.05);
+  color:var(--fg);
+}
+
+.priceBlock{
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.03);
+  border-radius:var(--radius);
+  padding:14px;
+  margin-bottom:12px;
+}
+
+.priceLabel{
+  font-size:12px;
+  color:var(--muted);
+}
+
+.price{
+  font-size:22px;
+  font-weight:650;
+  margin:6px 0;
+}
+
+.priceSub{
+  font-size:12px;
+  color:var(--muted);
+  line-height:1.4;
+}
+
+.seg{
+  display:flex;
+  gap:8px;
+  margin-top:10px;
+}
 
 .segBtn{
   border:1px solid var(--line);
@@ -275,292 +303,128 @@ body{
   background:rgba(255,255,255,.08);
 }
 
-.priceLine{
-  display:flex;
-  align-items:baseline;
-  justify-content:space-between;
-  gap:12px;
-}
-.price{
-  font-size:22px;
-  font-weight:650;
-  letter-spacing:.2px;
-}
-.sub{
-  font-size:12px;
-  color:var(--muted);
-  text-align:right;
-  line-height:1.35;
+.docBlock{
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.03);
+  border-radius:var(--radius);
+  padding:14px;
 }
 
-.fineprint{
+.docTitle{
+  font-size:13px;
+  margin-bottom:10px;
+}
+
+.docBtns{
+  display:flex;
+  gap:10px;
+}
+
+.btn{
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.07);
+  color:var(--fg);
+  padding:10px 12px;
+  border-radius:999px;
+  font-size:12px;
+}
+
+.muted{
   margin-top:10px;
   font-size:12px;
   color:var(--muted);
 }
 
-.spec{
-  display:grid;
-  gap:10px;
-  margin:0;
+/* =========================
+   TECH VIEWER (OVERLAY)
+   ========================= */
+
+#techViewer[hidden]{ display:none; }
+
+#techViewer{
+  position:fixed;
+  inset:0;
+  z-index:99999;
 }
-.spec div{
+
+#techViewerScrim{
+  position:absolute;
+  inset:0;
+  background: rgba(0,0,0,.72);
+}
+
+.techViewerPanel{
+  position:absolute;
+  inset:10px;
+  border-radius:14px;
+  background:#0b0d10;
+  box-shadow:var(--shadow);
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+}
+
+.techViewerHeader{
   display:flex;
   justify-content:space-between;
-  gap:14px;
-  padding:8px 0;
-  border-bottom:1px solid rgba(243,246,250,.08);
-}
-.spec div:last-child{ border-bottom:none; }
-.spec dt{
-  font-size:12px;
-  color:var(--muted);
-}
-.spec dd{
-  margin:0;
-  font-size:12px;
-  color:rgba(243,246,250,.92);
-  text-align:right;
-}
-
-.list{
-  margin:0;
-  padding-left: 16px;
-  color: rgba(243,246,250,.90);
-  font-size:12px;
-  line-height:1.55;
-}
-.list li{ margin:6px 0; }
-
-.callout{
-  margin-top: 10px;
-  padding: 10px 12px;
-  border-radius: 14px;
-  border: 1px solid rgba(243,246,250,.12);
+  align-items:center;
+  gap:12px;
+  padding:12px;
+  border-bottom:1px solid rgba(255,255,255,.1);
   background: rgba(0,0,0,.22);
-  font-size:12px;
-  color: rgba(243,246,250,.88);
-  line-height:1.55;
+  backdrop-filter: blur(14px);
 }
 
-.para{
-  margin:0;
-  font-size:12px;
-  color: rgba(243,246,250,.88);
-  line-height:1.55;
+.techViewerTitle{
+  font-size:14px;
+  opacity:.85;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
 }
 
-.ctaRow{
+.techViewerActions{
   display:flex;
   gap:10px;
-  margin-top: 10px;
-}
-
-.cta{
-  display:inline-flex;
   align-items:center;
-  justify-content:center;
-  text-decoration:none;
-  border:1px solid var(--line);
-  background:rgba(255,255,255,.07);
-  color:var(--fg);
-  padding:10px 12px;
-  border-radius: 999px;
+}
+
+.linkBtn{
   font-size:12px;
-  white-space:nowrap;
+  color:#fff;
+  text-decoration:none;
+  padding:6px 10px;
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:999px;
+  opacity:.8;
+}
+.linkBtn:hover{ opacity:1; }
+
+.iconBtn{
+  width:40px;
+  height:34px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(255,255,255,.05);
+  color:#fff;
+  font-size:22px;
 }
 
-.cta.ghost{
-  background:transparent;
-  color:var(--muted);
+.techViewerBody{
+  flex:1;
+  min-height:0;
+  display:flex;
 }
 
-.sheetBottomSafe{ height: calc(10px + var(--safe-bottom)); }
-
-/* =========================================================
-   Technical Viewer Overlay (generic)
-   Add to: assets/css/catalog.css
-   ========================================================= */
-
-#techViewer{
-  position: fixed;
-  inset: 0;
-  z-index: 1000;
+#techViewerFrame{
+  width:100%;
+  height:100%;
+  border:0;
 }
 
-#techViewer[hidden]{
-  display: none;
-}
-
-.overlayScrim{
-  position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,.72);
-}
-
-.overlayPanel{
-  position: relative;
-  margin: auto;
-  top: 5vh;
-  width: min(960px, 92vw);
-  height: min(640px, 82vh);
-  background: #0b0d10;
-  border-radius: 12px;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.overlayHeader{
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 14px 16px;
-  border-bottom: 1px solid rgba(255,255,255,.08);
-}
-
-.overlayTitle{
-  font-size: 14px;
-  letter-spacing: .02em;
-  opacity: .85;
-}
-
-.overlayActions{
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-
-.overlayOpenNew{
-  font-size: 12px;
-  letter-spacing: .02em;
-  opacity: .75;
-  text-decoration: none;
-  color: #fff;
-}
-
-.overlayOpenNew:hover{
-  opacity: 1;
-}
-
-.overlayClose{
-  background: none;
-  border: 0;
-  font-size: 22px;
-  color: #fff;
-  cursor: pointer;
-}
-
-.overlayBody{
-  flex: 1;
-}
-
-.overlayBody iframe{
-  width: 100%;
-  height: 100%;
-  border: 0;
-}
-
-/* =========================================================
-   Technical Viewer Overlay — FULL SCREEN (over fiche)
-   ========================================================= */
-
-#techViewer{
-  position: fixed;
-  inset: 0;
-  z-index: 99999;          /* always above fiche + viewer */
-  display: flex;           /* overlay layout */
-  align-items: center;
-  justify-content: center;
-  padding: 5vh 4vw;
-}
-
-#techViewer[hidden]{
-  display: none;
-}
-
-#techViewer .overlayScrim{
-  position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,.72);
-  pointer-events: auto;
-}
-
-#techViewer .overlayPanel{
-  position: relative;      /* above scrim */
-  width: min(960px, 92vw);
-  height: min(640px, 82vh);
-  background: #0b0d10;
-  border-radius: 12px;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-
-  /* subtle separation from background */
-  box-shadow: 0 30px 80px rgba(0,0,0,.55);
-}
-
-#techViewer .overlayHeader{
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 14px 16px;
-  border-bottom: 1px solid rgba(255,255,255,.08);
-}
-
-#techViewer .overlayTitle{
-  font-size: 14px;
-  letter-spacing: .02em;
-  opacity: .85;
-}
-
-#techViewer .overlayActions{
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-
-#techViewer .overlayOpenNew{
-  font-size: 12px;
-  letter-spacing: .02em;
-  opacity: .75;
-  text-decoration: none;
-  color: #fff;
-}
-
-#techViewer .overlayOpenNew:hover{
-  opacity: 1;
-}
-
-#techViewer .overlayClose{
-  background: none;
-  border: 0;
-  font-size: 22px;
-  color: #fff;
-  cursor: pointer;
-}
-
-#techViewer .overlayBody{
-  flex: 1;
-}
-
-#techViewer .overlayBody iframe{
-  width: 100%;
-  height: 100%;
-  border: 0;
-}
-/* Tech viewer content modes */
-#techViewer .viewerImg{
-  width: 100%;
-  height: 100%;
-  object-fit: contain;     /* KEY: fit whole report */
-  background: #0b0d10;     /* neutral letterbox */
-  display: block;
-}
-
-#techViewer .viewerFrame{
-  width: 100%;
-  height: 100%;
-  border: 0;
-  display: block;
+#techViewerImg{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  background:#0b0d10;
 }
