@@ -68,42 +68,97 @@
       </div>
     </footer>
 
-    <!-- (tu sheet + viewer quedan igual, no los repito para no alargar) -->
-    <!-- IMPORTANTE: mantené los IDs btnGia / btn360 como ya los tenés -->
+    <!-- =========================
+         FICHE (SHEET)
+         IDs required by product.js:
+         openSheet, sheet, sheetScrim, closeSheet, btnGia, btn360
+         ========================= -->
+    <section id="sheet" class="sheet" hidden role="dialog" aria-modal="true" aria-label="Fiche">
+      <div id="sheetScrim" class="sheetScrim" aria-hidden="true"></div>
+
+      <div class="sheetPanel" role="document" tabindex="-1">
+        <header class="sheetHeader">
+          <div class="sheetTitle">Fiche</div>
+          <button id="closeSheet" class="sheetClose" type="button" aria-label="Close">×</button>
+        </header>
+
+        <div class="sheetBody">
+          <div class="pillRow">
+            <span class="pill"><strong>LW-2026-pear-pebble-ring</strong></span>
+            <button id="copyMPN" class="pillBtn" type="button">Copy MPN</button>
+          </div>
+
+          <div class="priceBlock">
+            <div class="priceLabel">Indicative pricing</div>
+            <div class="price" id="price">$—</div>
+            <div class="priceSub" id="priceSub"></div>
+
+            <div class="seg" role="tablist" aria-label="Price options">
+              <button class="segBtn is-active" type="button"
+                data-price="14500" data-metal="18K Rose Gold" data-weight="approx. 18 g">
+                Rose Gold
+              </button>
+              <button class="segBtn" type="button"
+                data-price="16944" data-metal="18K White Gold" data-weight="(weight depends on alloy + build)">
+                White Gold
+              </button>
+            </div>
+          </div>
+
+          <div class="docBlock">
+            <div class="docTitle">Documentation</div>
+            <div class="docBtns">
+              <button id="btnGia" class="btn"
+                type="button"
+                data-viewer-title="GIA Report"
+                data-open-newtab="0">
+                View report
+              </button>
+
+              <button id="btn360" class="btn"
+                type="button"
+                data-open-newtab="1">
+                View 360°
+              </button>
+            </div>
+            <p class="muted">
+              Report-linked. Viewer opens on-device. 360° opens in a new tab.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================
+         TECH VIEWER (modal)
+         Required by product.js if present:
+         techViewer, techViewerScrim, techViewerClose,
+         techViewerTitle, techViewerOpenNew, techViewerFrame, techViewerImg
+         ========================= -->
+    <section id="techViewer" class="techViewer" hidden aria-label="Technical viewer" role="dialog" aria-modal="true">
+      <div id="techViewerScrim" class="techViewerScrim" aria-hidden="true"></div>
+
+      <div class="techViewerPanel" role="document" tabindex="-1">
+        <header class="techViewerHeader">
+          <div id="techViewerTitle" class="techViewerTitle">Technical viewer</div>
+          <div class="techViewerActions">
+            <a id="techViewerOpenNew" class="linkBtn" href="#" target="_blank" rel="noopener">Open in new tab</a>
+            <button id="techViewerClose" class="iconBtn" type="button" aria-label="Close">×</button>
+          </div>
+        </header>
+
+        <div class="techViewerBody">
+          <iframe id="techViewerFrame" title="Technical frame" hidden loading="lazy"></iframe>
+          <img id="techViewerImg" alt="" hidden loading="eager" decoding="async" />
+        </div>
+      </div>
+    </section>
 
   </main>
 
+  <!-- Keep scripts; recommend defer if you prefer -->
   <script src="assets/js/access.js"></script>
   <script src="assets/js/product.js"></script>
-
-  <script>
-    (() => {
-      const el = document.getElementById("productData");
-      if (!el) return;
-
-      let p;
-      try { p = JSON.parse(el.textContent || "{}"); } catch { return; }
-
-      const mediaDir = p.mediaDir || "";
-      const hero = Array.isArray(p.hero) ? p.hero : [];
-
-      document.querySelectorAll("img[data-hero-index]").forEach(img => {
-        const i = Number(img.getAttribute("data-hero-index"));
-        if (!Number.isFinite(i) || !hero[i]) return;
-        img.src = mediaDir + hero[i];
-      });
-
-      const giaFile = p?.diamond?.assets?.giaReportImage || "";
-      const giaUrl = giaFile.startsWith("http") ? giaFile : (mediaDir + giaFile);
-      const d360 = p?.diamond?.assets?.diamond360Url || "";
-
-      const btnGia = document.getElementById("btnGia");
-      if (btnGia) btnGia.setAttribute("data-viewer-url", giaUrl);
-
-      const btn360 = document.getElementById("btn360");
-      if (btn360) btn360.setAttribute("data-url", d360);
-    })();
-  </script>
 
 </body>
 </html>
