@@ -1,488 +1,325 @@
-:root{
-  --bg:#07090c;
-  --fg:#f3f6fa;
-  --muted:rgba(243,246,250,.68);
-  --line:rgba(243,246,250,.14);
-  --panel:rgba(10,13,18,.92);
-  --shadow: 0 30px 80px rgba(0,0,0,.55);
-  --radius:18px;
-  --pad:16px;
-  --safe-bottom: env(safe-area-inset-bottom, 0px);
-  --safe-top: env(safe-area-inset-top, 0px);
-  --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-}
+(() => {
+  "use strict";
 
-*{ box-sizing:border-box; }
-html,body{ height:100%; }
-body{
-  margin:0;
-  font-family:var(--font);
-  background:var(--bg);
-  color:var(--fg);
-}
+  const $ = (q, root=document) => root.querySelector(q);
 
-/* =======================
-   Stage + Viewer
-   ======================= */
-.stage{
-  height:100%;
-  display:flex;
-  flex-direction:column;
-}
+  function readProductData() {
+    const el = $("#productData");
+    if (!el) return null;
+    try { return JSON.parse(el.textContent.trim() || "{}"); }
+    catch { return null; }
+  }
 
-.viewer{
-  position:relative;
-  flex:1;
-  min-height:0;
-  overflow:hidden;
-}
+  function joinUrl(base, file) {
+    if (!base) return file || "";
+    if (!file) return base;
+    if (/^https?:\/\//i.test(file)) return file;
+    const b = base.endsWith("/") ? base : base + "/";
+    return b + file.replace(/^\//, "");
+  }
 
-.media{
-  height:100%;
-  width:100%;
-  position:relative;
-  background:#000;
-}
+  function money(n, currency="USD") {
+    if (typeof n !== "number") return "—";
+    try {
+      return new Intl.NumberFormat("en-US", { style:"currency", currency }).format(n);
+    } catch {
+      return `$${n.toFixed(2)}`;
+    }
+  }
 
-.slide{
-  position:absolute;
-  inset:0;
-  margin:0;
-  opacity:0;
-  transition:opacity .22s ease;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-.slide.is-active{ opacity:1; }
+  function setHidden(el, hidden) {
+    if (!el) return;
+    if (hidden) el.setAttribute("hidden", "");
+    else el.removeAttribute("hidden");
+  }
 
-.slide img,
-.slide video{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  display:block;
-}
+  const data = readProductData();
+  if (!data) return;
 
-.nav{
-  position:absolute;
-  left:0; right:0;
-  bottom: calc(84px + var(--safe-bottom));
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:12px;
-  padding: 0 var(--pad);
-  pointer-events:none;
-}
+  const mediaRoot = $("#mediaRoot");
+  const dots = $("#dots");
+  const prevBtn = $("#prevBtn");
+  const nextBtn = $("#nextBtn");
 
-.navBtn{
-  pointer-events:auto;
-  width:44px;
-  height:44px;
-  border-radius:999px;
-  border:1px solid var(--line);
-  background:rgba(0,0,0,.35);
-  color:var(--fg);
-  font-size:24px;
-  line-height:1;
-  display:grid;
-  place-items:center;
-  backdrop-filter: blur(10px);
-}
+  const openSheetBtn = $("#openSheet");
+  const sheet = $("#sheet");
+  const sheetScrim = $("#sheetScrim");
+  const closeSheetBtn = $("#closeSheet");
 
-.dots{
-  pointer-events:auto;
-  display:flex;
-  gap:6px;
-  padding:10px 12px;
-  border:1px solid var(--line);
-  border-radius:999px;
-  background:rgba(0,0,0,.28);
-  backdrop-filter: blur(10px);
-}
-.dot{
-  width:6px;
-  height:6px;
-  border-radius:999px;
-  background:rgba(243,246,250,.28);
-  border:0;
-  padding:0;
-}
-.dot.is-active{ background:rgba(243,246,250,.85); }
+  const bottomTitle = $("#bottomTitle");
+  const bottomSub = $("#bottomSub");
 
-/* =======================
-   Bottom strip
-   ======================= */
-.bottom{
-  position:sticky;
-  bottom:0;
-  z-index:5;
-  background: linear-gradient(to top, rgba(0,0,0,.70), rgba(0,0,0,.18));
-  padding: 10px var(--pad) calc(10px + var(--safe-bottom));
-}
+  const sheetH1 = $("#sheetH1");
+  const metaRow = $("#metaRow");
 
-.bottomInner{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:14px;
-}
+  const priceSeg = $("#priceSeg");
+  const priceValue = $("#priceValue");
+  const priceSub = $("#priceSub");
+  const priceDisclaimer = $("#priceDisclaimer");
 
-.twoLines{ min-width:0; }
-.l1{
-  font-size:14px;
-  letter-spacing:.2px;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-.l2{
-  font-size:12px;
-  color:var(--muted);
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  margin-top:3px;
-}
+  const specGrid = $("#specGrid");
 
-.openSheet{
-  border:1px solid var(--line);
-  background:rgba(255,255,255,.06);
-  color:var(--fg);
-  padding:10px 14px;
-  border-radius:999px;
-  font-size:13px;
-  letter-spacing:.2px;
-  white-space:nowrap;
-  backdrop-filter: blur(10px);
-}
+  const nycNetworkLine = $("#nycNetworkLine");
+  const appraisalMethod = $("#appraisalMethod");
+  const appraisalNote = $("#appraisalNote");
 
-/* =======================
-   Slide-up Sheet (Fiche)
-   ======================= */
-.sheet[hidden]{ display:none !important; }
+  const btnGia = $("#btnGia");
+  const btnXray = $("#btnXray");
+  const btn360 = $("#btn360");
 
-.sheet{
-  position:fixed;
-  inset:0;
-  z-index:2000; /* above page UI */
-}
+  const techViewer = $("#techViewer");
+  const techViewerScrim = $("#techViewerScrim");
+  const techViewerClose = $("#techViewerClose");
+  const techViewerTitle = $("#techViewerTitle");
+  const techViewerOpenNew = $("#techViewerOpenNew");
+  const techViewerFrame = $("#techViewerFrame");
+  const techViewerImg = $("#techViewerImg");
+  const techViewerVideo = $("#techViewerVideo");
 
-.sheetScrim{
-  position:absolute;
-  inset:0;
-  background:rgba(0,0,0,.55);
-}
+  // Title strip
+  const title = data.title || "—";
+  bottomTitle.textContent = `${title} · ${data.subtitle || ""}`.trim();
+  bottomSub.textContent = "Documentation-ready. Report-linked. Standards-aligned.";
 
-.sheetPanel{
-  position:absolute;
-  left:0; right:0;
-  bottom:0;
-  max-height: 86vh;
-  background: var(--panel);
-  border-top-left-radius: 22px;
-  border-top-right-radius: 22px;
-  box-shadow: var(--shadow);
-  overflow:hidden;
-  transform: translateY(8px);
-  animation: rise .18s ease-out forwards;
-}
+  // Slides
+  const hero = Array.isArray(data.hero) ? data.hero : [];
+  const heroUrls = hero.map((f) => joinUrl(data.mediaDir, f)).filter(Boolean);
 
-@keyframes rise{ to{ transform: translateY(0); } }
+  let idx = 0;
 
-.sheetHeader{
-  display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
-  gap:10px;
-  padding: calc(14px + var(--safe-top)) var(--pad) 12px;
-  border-bottom: 1px solid var(--line);
-  background: rgba(0,0,0,.22);
-  backdrop-filter: blur(14px);
-}
+  function renderSlides() {
+    mediaRoot.innerHTML = "";
+    heroUrls.forEach((src, i) => {
+      const fig = document.createElement("figure");
+      fig.className = "slide" + (i === 0 ? " is-active" : "");
+      fig.setAttribute("aria-label", `Image ${i+1}`);
 
-.kicker{
-  font-size:11px;
-  color:var(--muted);
-  letter-spacing:.25px;
-}
+      const img = document.createElement("img");
+      img.src = src;
+      img.alt = `${title} — image ${i+1}`;
+      img.loading = i === 0 ? "eager" : "lazy";
+      img.decoding = "async";
 
-.sheetTitle h1{
-  margin:6px 0 8px;
-  font-size:18px;
-  font-weight:600;
-  letter-spacing:.2px;
-}
+      fig.appendChild(img);
+      mediaRoot.appendChild(fig);
+    });
 
-.metaRow{
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
-}
+    dots.innerHTML = "";
+    heroUrls.forEach((_, i) => {
+      const d = document.createElement("div");
+      d.className = "dot" + (i === 0 ? " is-on" : "");
+      d.addEventListener("click", () => go(i));
+      dots.appendChild(d);
+    });
+  }
 
-.pill{
-  font-size:12px;
-  color:var(--muted);
-  border:1px solid var(--line);
-  padding:6px 10px;
-  border-radius:999px;
-  background: rgba(255,255,255,.03);
-}
+  function go(i) {
+    const slides = mediaRoot.querySelectorAll(".slide");
+    const dotEls = dots.querySelectorAll(".dot");
+    if (!slides.length) return;
 
-.closeSheet{
-  width:42px;
-  height:42px;
-  border-radius:999px;
-  border:1px solid var(--line);
-  background:rgba(255,255,255,.05);
-  color:var(--fg);
-  font-size:22px;
-  line-height:1;
-}
+    idx = (i + slides.length) % slides.length;
 
-.sheetBody{
-  padding: 14px var(--pad) 16px;
-  overflow:auto;
-  max-height: calc(86vh - 96px);
-  -webkit-overflow-scrolling: touch;
-}
+    slides.forEach((s, k) => s.classList.toggle("is-active", k === idx));
+    dotEls.forEach((d, k) => d.classList.toggle("is-on", k === idx));
+  }
 
-.card{
-  border:1px solid var(--line);
-  background: rgba(255,255,255,.03);
-  border-radius: var(--radius);
-  padding: 14px;
-  margin-bottom: 12px;
-}
+  prevBtn?.addEventListener("click", () => go(idx - 1));
+  nextBtn?.addEventListener("click", () => go(idx + 1));
 
-.card h2{
-  margin:0 0 10px;
-  font-size:13px;
-  letter-spacing:.2px;
-  color: rgba(243,246,250,.92);
-  font-weight:600;
-}
+  renderSlides();
 
-.cardHead{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-  margin-bottom: 10px;
-}
+  // Sheet open/close
+  function openSheet() {
+    setHidden(sheet, false);
+    openSheetBtn?.setAttribute("aria-expanded", "true");
+    sheet.querySelector(".sheetPanel")?.focus();
+    document.body.style.overflow = "hidden";
+  }
 
-.seg{ display:flex; gap:8px; }
+  function closeSheet() {
+    setHidden(sheet, true);
+    openSheetBtn?.setAttribute("aria-expanded", "false");
+    document.body.style.overflow = "";
+  }
 
-.segBtn{
-  border:1px solid var(--line);
-  background:rgba(255,255,255,.03);
-  color:var(--muted);
-  padding:8px 10px;
-  border-radius:999px;
-  font-size:12px;
-}
-.segBtn.is-active{
-  color:var(--fg);
-  background:rgba(255,255,255,.08);
-}
+  openSheetBtn?.addEventListener("click", openSheet);
+  closeSheetBtn?.addEventListener("click", closeSheet);
+  sheetScrim?.addEventListener("click", closeSheet);
 
-.priceLine{
-  display:flex;
-  align-items:baseline;
-  justify-content:space-between;
-  gap:12px;
-}
-.price{
-  font-size:22px;
-  font-weight:650;
-  letter-spacing:.2px;
-}
-.sub{
-  font-size:12px;
-  color:var(--muted);
-  text-align:right;
-  line-height:1.35;
-}
-.sub2{ color: var(--muted); }
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape") return;
+    if (sheet && !sheet.hasAttribute("hidden")) closeSheet();
+    if (techViewer && !techViewer.hasAttribute("hidden")) closeTechViewer();
+  });
 
-.fineprint{
-  margin-top:10px;
-  font-size:12px;
-  color:var(--muted);
-}
+  // Header/meta
+  sheetH1.textContent = title;
 
-.spec{
-  display:grid;
-  gap:10px;
-  margin:0;
-}
-.spec div{
-  display:flex;
-  justify-content:space-between;
-  gap:14px;
-  padding:8px 0;
-  border-bottom:1px solid rgba(243,246,250,.08);
-}
-.spec div:last-child{ border-bottom:none; }
-.spec dt{
-  font-size:12px;
-  color:var(--muted);
-}
-.spec dd{
-  margin:0;
-  font-size:12px;
-  color:rgba(243,246,250,.92);
-  text-align:right;
-}
+  metaRow.innerHTML = "";
+  [
+    `MPN: ${data.mpn || "—"}`,
+    `Lead time: ${data.leadTimeDays ? `${data.leadTimeDays} days` : "—"}`
+  ].forEach((t) => {
+    const span = document.createElement("span");
+    span.className = "pill";
+    span.textContent = t;
+    metaRow.appendChild(span);
+  });
 
-.list{
-  margin:0;
-  padding-left: 16px;
-  color: rgba(243,246,250,.90);
-  font-size:12px;
-  line-height:1.55;
-}
-.list li{ margin:6px 0; }
+  // Pricing
+  const pricing = data.pricing || {};
+  const currency = pricing.currency || "USD";
+  const options = (pricing.options || []).filter(Boolean);
 
-.callout{
-  margin-top: 10px;
-  padding: 10px 12px;
-  border-radius: 14px;
-  border: 1px solid rgba(243,246,250,.12);
-  background: rgba(0,0,0,.22);
-  font-size:12px;
-  color: rgba(243,246,250,.88);
-  line-height:1.55;
-}
+  function setPrice(opt) {
+    priceValue.textContent = money(opt?.price, currency);
+    const metal = opt?.metal ? opt.metal : "—";
+    const weight = opt?.weight ? opt.weight : "";
+    priceSub.innerHTML = `${metal}${weight ? ` · ${weight}` : ""}<br>Lead time: ${data.leadTimeDays || "—"} days`;
+    priceDisclaimer.textContent = pricing.disclaimer || "";
+  }
 
-.para{
-  margin:0;
-  font-size:12px;
-  color: rgba(243,246,250,.88);
-  line-height:1.55;
-}
+  priceSeg.innerHTML = "";
+  options.forEach((opt, i) => {
+    const b = document.createElement("button");
+    b.className = "segBtn" + (i === 0 ? " is-active" : "");
+    b.type = "button";
+    b.textContent = opt.label || `Option ${i+1}`;
+    b.addEventListener("click", () => {
+      priceSeg.querySelectorAll(".segBtn").forEach(x => x.classList.remove("is-active"));
+      b.classList.add("is-active");
+      setPrice(opt);
+    });
+    priceSeg.appendChild(b);
+  });
 
-.ctaRow{
-  display:flex;
-  gap:10px;
-  margin-top: 10px;
-  flex-wrap: wrap;
-}
+  setPrice(options[0] || null);
 
-.cta{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  text-decoration:none;
-  border:1px solid var(--line);
-  background:rgba(255,255,255,.07);
-  color:var(--fg);
-  padding:10px 12px;
-  border-radius: 999px;
-  font-size:12px;
-  white-space:nowrap;
-}
+  // Specs
+  function addSpec(label, value) {
+    const row = document.createElement("div");
+    const dt = document.createElement("dt");
+    const dd = document.createElement("dd");
+    dt.textContent = label;
+    dd.textContent = (value === undefined || value === null || value === "") ? "—" : String(value);
+    row.appendChild(dt);
+    row.appendChild(dd);
+    specGrid.appendChild(row);
+  }
 
-.cta.ghost{
-  background:transparent;
-  color:var(--muted);
-}
+  specGrid.innerHTML = "";
+  const selected = options[0] || {};
+  addSpec("MPN", data.mpn);
+  addSpec("Finished metal", selected.metal ? `${selected.metal} (alt: ${options[1]?.metal || "—"})` : "—");
+  addSpec("Approx. metal weight", selected.weight || "—");
+  addSpec("Lead time", data.leadTimeDays ? `${data.leadTimeDays} days` : "—");
 
-.sheetBottomSafe{ height: calc(10px + var(--safe-bottom)); }
+  const d = data.diamond || {};
+  addSpec("Diamond shape", d.shape);
+  addSpec("Carat", d.carat);
+  addSpec("Color", d.color);
+  addSpec("Clarity", d.clarity);
+  addSpec("Cut", d.cut);
+  addSpec("Polish", d.polish);
+  addSpec("Symmetry", d.symmetry);
+  addSpec("Fluorescence", d.fluorescence);
 
-/* =======================
-   Technical Viewer (Report / 360)
-   IMPORTANT: must be above sheet
-   ======================= */
-#techViewer{
-  position: fixed;
-  inset: 0;
-  z-index: 99999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 5vh 4vw;
-}
+  // Appraisal / NYC
+  const app = data.appraisal || {};
+  nycNetworkLine.textContent = app.nycNetwork || "NYC appraisal network (GIA-aligned workflows).";
 
-#techViewer[hidden]{
-  display: none !important;
-}
+  appraisalMethod.innerHTML = "";
+  (app.method || []).forEach((li) => {
+    const item = document.createElement("li");
+    item.textContent = li;
+    appraisalMethod.appendChild(item);
+  });
 
-#techViewer .overlayScrim{
-  position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,.72);
-}
+  appraisalNote.textContent = app.note || "";
 
-#techViewer .overlayPanel{
-  position: relative;
-  width: min(960px, 92vw);
-  height: min(640px, 82vh);
-  background: #0b0d10;
-  border-radius: 12px;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  box-shadow: 0 30px 80px rgba(0,0,0,.55);
-}
+  // Tech Viewer
+  function closeTechViewer() {
+    setHidden(techViewer, true);
 
-#techViewer .overlayHeader{
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 14px 16px;
-  border-bottom: 1px solid rgba(255,255,255,.08);
-}
+    setHidden(techViewerFrame, true);
+    setHidden(techViewerImg, true);
+    setHidden(techViewerVideo, true);
 
-#techViewer .overlayTitle{
-  font-size: 14px;
-  letter-spacing: .02em;
-  opacity: .85;
-}
+    techViewerFrame.src = "about:blank";
+    techViewerImg.src = "";
 
-#techViewer .overlayActions{
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
+    techViewerVideo.pause();
+    techViewerVideo.removeAttribute("src");
+    techViewerVideo.load();
 
-#techViewer .overlayOpenNew{
-  font-size: 12px;
-  letter-spacing: .02em;
-  opacity: .75;
-  text-decoration: none;
-  color: #fff;
-}
+    techViewerOpenNew.href = "#";
+    setHidden(techViewerOpenNew, true);
 
-#techViewer .overlayOpenNew:hover{ opacity: 1; }
+    document.body.style.overflow = "";
+  }
 
-#techViewer .overlayClose{
-  background: none;
-  border: 0;
-  font-size: 22px;
-  color: #fff;
-  cursor: pointer;
-}
+  function openTechViewer({ title, mode, src, openNewUrl }) {
+    techViewerTitle.textContent = title || "Technical viewer";
+    setHidden(techViewer, false);
+    document.body.style.overflow = "hidden";
 
-#techViewer .overlayBody{
-  flex: 1;
-  position: relative;
-  overflow: auto;                 /* KEY: allow scroll on big report image */
-  -webkit-overflow-scrolling: touch;
-}
+    setHidden(techViewerFrame, true);
+    setHidden(techViewerImg, true);
+    setHidden(techViewerVideo, true);
 
-#techViewer .viewerImg{
-  width: 100%;
-  height: 100%;
-  object-fit: contain;            /* KEY: whole report visible */
-  background: #0b0d10;
-  display: block;
-}
+    if (openNewUrl) {
+      techViewerOpenNew.href = openNewUrl;
+      setHidden(techViewerOpenNew, false);
+    } else {
+      setHidden(techViewerOpenNew, true);
+    }
 
-#techViewer .viewerFrame{
-  width: 100%;
-  height: 100%;
-  border: 0;
-  display: block;
-}
+    if (mode === "img") {
+      techViewerImg.alt = title || "";
+      techViewerImg.src = src;
+      setHidden(techViewerImg, false);
+    } else if (mode === "video") {
+      techViewerVideo.src = src;
+      setHidden(techViewerVideo, false);
+      techViewerVideo.play().catch(() => {});
+    } else {
+      techViewerFrame.src = src;
+      setHidden(techViewerFrame, false);
+    }
+  }
+
+  techViewerClose?.addEventListener("click", closeTechViewer);
+  techViewerScrim?.addEventListener("click", closeTechViewer);
+
+  // Documentation
+  const doc = data.documentation || {};
+  const giaUrl = joinUrl(data.mediaDir, doc.giaReportImage);
+  const xrayUrl = doc.xrayVideoUrl || "";
+  const v360 = doc.diamond360Url || "#";
+
+  if (!giaUrl) btnGia?.setAttribute("disabled", "");
+  if (!xrayUrl) btnXray?.setAttribute("disabled", "");
+  if (btn360) btn360.href = v360;
+
+  btnGia?.addEventListener("click", () => {
+    if (!giaUrl) return;
+    openTechViewer({
+      title: "GIA Report",
+      mode: "img",
+      src: giaUrl,
+      openNewUrl: giaUrl
+    });
+  });
+
+  btnXray?.addEventListener("click", () => {
+    if (!xrayUrl) return;
+    openTechViewer({
+      title: "X-ray video",
+      mode: "video",
+      src: xrayUrl,
+      openNewUrl: xrayUrl
+    });
+  });
+
+})();
