@@ -68,95 +68,151 @@
       </div>
     </footer>
 
-    <!-- =========================
-         FICHE (SHEET)
-         IDs required by product.js:
+    <!-- =========================================================
+         FICHE (SHEET) — matches your catalog.css class names
+         Required IDs (product.js):
          openSheet, sheet, sheetScrim, closeSheet, btnGia, btn360
-         ========================= -->
+         Optional: copyMPN, price, priceSub, segBtn*
+         ========================================================= -->
     <section id="sheet" class="sheet" hidden role="dialog" aria-modal="true" aria-label="Fiche">
       <div id="sheetScrim" class="sheetScrim" aria-hidden="true"></div>
 
       <div class="sheetPanel" role="document" tabindex="-1">
         <header class="sheetHeader">
-          <div class="sheetTitle">Fiche</div>
-          <button id="closeSheet" class="sheetClose" type="button" aria-label="Close">×</button>
-        </header>
+          <div>
+            <div class="kicker">LW Gems · Private Catalog Fiche</div>
+            <div class="sheetTitle">
+              <h1>Pear Pebble Ring</h1>
+            </div>
 
-        <div class="sheetBody">
-          <div class="pillRow">
-            <span class="pill"><strong>LW-2026-pear-pebble-ring</strong></span>
-            <button id="copyMPN" class="pillBtn" type="button">Copy MPN</button>
-          </div>
-
-          <div class="priceBlock">
-            <div class="priceLabel">Indicative pricing</div>
-            <div class="price" id="price">$—</div>
-            <div class="priceSub" id="priceSub"></div>
-
-            <div class="seg" role="tablist" aria-label="Price options">
-              <button class="segBtn is-active" type="button"
-                data-price="14500" data-metal="18K Rose Gold" data-weight="approx. 18 g">
-                Rose Gold
-              </button>
-              <button class="segBtn" type="button"
-                data-price="16944" data-metal="18K White Gold" data-weight="(weight depends on alloy + build)">
-                White Gold
-              </button>
+            <div class="metaRow">
+              <span class="pill">MPN: <strong>LW-2026-pear-pebble-ring</strong></span>
+              <span class="pill">Lead time: <strong>30 days</strong></span>
+              <button id="copyMPN" class="pill" type="button" style="cursor:pointer;">Copy MPN</button>
             </div>
           </div>
 
-          <div class="docBlock">
-            <div class="docTitle">Documentation</div>
-            <div class="docBtns">
-              <button id="btnGia" class="btn"
-                type="button"
+          <!-- IMPORTANT: your CSS expects .closeSheet (not sheetClose) -->
+          <button id="closeSheet" class="closeSheet" type="button" aria-label="Close">×</button>
+        </header>
+
+        <div class="sheetBody">
+
+          <!-- Pricing card -->
+          <section class="card" aria-label="Pricing">
+            <div class="cardHead">
+              <h2>Pricing</h2>
+              <div class="seg" role="tablist" aria-label="Price options">
+                <!-- IMPORTANT: your JS toggles .is-active, your CSS uses .is-active -->
+                <button class="segBtn is-active" type="button"
+                  data-price="14500" data-metal="18K Rose Gold" data-weight="approx. 18 g">
+                  Rose Gold
+                </button>
+                <button class="segBtn" type="button"
+                  data-price="16944" data-metal="18K White Gold" data-weight="(weight depends on alloy + build)">
+                  White Gold
+                </button>
+              </div>
+            </div>
+
+            <div class="priceLine">
+              <div>
+                <div class="kicker">Indicative pricing</div>
+                <div class="price" id="price">$—</div>
+              </div>
+
+              <div class="sub" id="priceSub"></div>
+            </div>
+
+            <div class="fineprint">
+              Prices shown in USD. Final quote may vary with sizing, tolerances, and confirmed specifications.
+            </div>
+          </section>
+
+          <!-- Specifications card (restores the “full fiche” feel) -->
+          <section class="card" aria-label="Specifications">
+            <h2>Specifications</h2>
+            <dl class="spec">
+              <div>
+                <dt>MPN</dt>
+                <dd>LW-2026-pear-pebble-ring</dd>
+              </div>
+              <div>
+                <dt>Finished metal</dt>
+                <dd>18K Rose Gold (alt: 18K White Gold)</dd>
+              </div>
+              <div>
+                <dt>Approx. metal weight</dt>
+                <dd>~18 g (design-dependent)</dd>
+              </div>
+              <div>
+                <dt>Lead time</dt>
+                <dd>30 days</dd>
+              </div>
+            </dl>
+          </section>
+
+          <!-- Documentation card -->
+          <section class="card" aria-label="Documentation">
+            <h2>Documentation</h2>
+
+            <div class="ctaRow">
+              <!-- IMPORTANT: product.js listens to [data-viewer-url] and uses techViewer -->
+              <button id="btnGia" class="cta" type="button"
                 data-viewer-title="GIA Report"
                 data-open-newtab="0">
                 View report
               </button>
 
-              <button id="btn360" class="btn"
-                type="button"
+              <!-- IMPORTANT: product.js opens [data-open-newtab='1'] using data-url -->
+              <button id="btn360" class="cta" type="button"
                 data-open-newtab="1">
                 View 360°
               </button>
             </div>
-            <p class="muted">
+
+            <div class="callout">
               Report-linked. Viewer opens on-device. 360° opens in a new tab.
-            </p>
-          </div>
+            </div>
+          </section>
+
+          <div class="sheetBottomSafe" aria-hidden="true"></div>
         </div>
       </div>
     </section>
 
-    <!-- =========================
-         TECH VIEWER (modal)
-         Required by product.js if present:
+    <!-- =========================================================
+         TECH VIEWER — must match your CSS selectors
+         Use: #techViewer + .overlayScrim + .overlayPanel + ...
+         IDs required by product.js:
          techViewer, techViewerScrim, techViewerClose,
          techViewerTitle, techViewerOpenNew, techViewerFrame, techViewerImg
-         ========================= -->
-    <section id="techViewer" class="techViewer" hidden aria-label="Technical viewer" role="dialog" aria-modal="true">
-      <div id="techViewerScrim" class="techViewerScrim" aria-hidden="true"></div>
+         ========================================================= -->
+    <section id="techViewer" hidden aria-label="Technical viewer" role="dialog" aria-modal="true">
+      <div id="techViewerScrim" class="overlayScrim" aria-hidden="true"></div>
 
-      <div class="techViewerPanel" role="document" tabindex="-1">
-        <header class="techViewerHeader">
-          <div id="techViewerTitle" class="techViewerTitle">Technical viewer</div>
-          <div class="techViewerActions">
-            <a id="techViewerOpenNew" class="linkBtn" href="#" target="_blank" rel="noopener">Open in new tab</a>
-            <button id="techViewerClose" class="iconBtn" type="button" aria-label="Close">×</button>
+      <div class="overlayPanel" role="document" tabindex="-1">
+        <header class="overlayHeader">
+          <div id="techViewerTitle" class="overlayTitle">Technical viewer</div>
+
+          <div class="overlayActions">
+            <a id="techViewerOpenNew" class="overlayOpenNew" href="#" target="_blank" rel="noopener">
+              Open in new tab
+            </a>
+            <button id="techViewerClose" class="overlayClose" type="button" aria-label="Close">×</button>
           </div>
         </header>
 
-        <div class="techViewerBody">
-          <iframe id="techViewerFrame" title="Technical frame" hidden loading="lazy"></iframe>
-          <img id="techViewerImg" alt="" hidden loading="eager" decoding="async" />
+        <div class="overlayBody">
+          <!-- IMPORTANT: your CSS targets .viewerFrame/.viewerImg + iframe rule -->
+          <iframe id="techViewerFrame" class="viewerFrame" title="Technical frame" hidden loading="lazy"></iframe>
+          <img id="techViewerImg" class="viewerImg" alt="" hidden loading="eager" decoding="async" />
         </div>
       </div>
     </section>
 
   </main>
 
-  <!-- Keep scripts; recommend defer if you prefer -->
   <script src="assets/js/access.js"></script>
   <script src="assets/js/product.js"></script>
 
