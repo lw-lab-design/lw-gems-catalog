@@ -1,316 +1,488 @@
-(() => {
-  // Run after DOM is ready (works even if script is not loaded with defer)
-  function onReady(fn) {
-    if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", fn, { once: true });
-    } else {
-      fn();
-    }
-  }
+:root{
+  --bg:#07090c;
+  --fg:#f3f6fa;
+  --muted:rgba(243,246,250,.68);
+  --line:rgba(243,246,250,.14);
+  --panel:rgba(10,13,18,.92);
+  --shadow: 0 30px 80px rgba(0,0,0,.55);
+  --radius:18px;
+  --pad:16px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-top: env(safe-area-inset-top, 0px);
+  --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+}
 
-  onReady(() => {
-    // ---------- Read productData + hydrate media ----------
-    function readProductData() {
-      const el = document.getElementById("productData");
-      if (!el) return null;
-      try {
-        return JSON.parse(el.textContent || "{}");
-      } catch {
-        return null;
-      }
-    }
+*{ box-sizing:border-box; }
+html,body{ height:100%; }
+body{
+  margin:0;
+  font-family:var(--font);
+  background:var(--bg);
+  color:var(--fg);
+}
 
-    function ensureTrailingSlash(p) {
-      const s = String(p || "");
-      if (!s) return "";
-      return s.endsWith("/") ? s : s + "/";
-    }
+/* =======================
+   Stage + Viewer
+   ======================= */
+.stage{
+  height:100%;
+  display:flex;
+  flex-direction:column;
+}
 
-    function joinPath(dir, file) {
-      const d = ensureTrailingSlash(dir);
-      const f = String(file || "");
-      if (!d || !f) return "";
-      // If file is absolute URL, return as-is
-      if (/^https?:\/\//i.test(f) || /^data:/i.test(f)) return f;
-      return d + f.replace(/^\//, "");
-    }
+.viewer{
+  position:relative;
+  flex:1;
+  min-height:0;
+  overflow:hidden;
+}
 
-    const P = readProductData() || {};
-    const mediaDir = ensureTrailingSlash(P.mediaDir || "");
-    const hero = Array.isArray(P.hero) ? P.hero : [];
+.media{
+  height:100%;
+  width:100%;
+  position:relative;
+  background:#000;
+}
 
-    // Fill hero images if template uses data-hero-index
-    document.querySelectorAll("img[data-hero-index]").forEach((img) => {
-      const i = Number(img.getAttribute("data-hero-index"));
-      if (!Number.isFinite(i)) return;
-      if (!hero[i]) return;
+.slide{
+  position:absolute;
+  inset:0;
+  margin:0;
+  opacity:0;
+  transition:opacity .22s ease;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.slide.is-active{ opacity:1; }
 
-      const url = joinPath(mediaDir, hero[i]);
-      if (url) img.src = url;
-    });
+.slide img,
+.slide video{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
 
-    // Set documentation URLs (buttons)
-    const giaFile = P?.diamond?.assets?.giaReportImage || "";
-    const giaUrl = giaFile ? joinPath(mediaDir, giaFile) : "";
+.nav{
+  position:absolute;
+  left:0; right:0;
+  bottom: calc(84px + var(--safe-bottom));
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  padding: 0 var(--pad);
+  pointer-events:none;
+}
 
-    const d360Url = P?.diamond?.assets?.diamond360Url || "";
+.navBtn{
+  pointer-events:auto;
+  width:44px;
+  height:44px;
+  border-radius:999px;
+  border:1px solid var(--line);
+  background:rgba(0,0,0,.35);
+  color:var(--fg);
+  font-size:24px;
+  line-height:1;
+  display:grid;
+  place-items:center;
+  backdrop-filter: blur(10px);
+}
 
-    const btnGia = document.getElementById("btnGia");
-    if (btnGia && giaUrl) btnGia.setAttribute("data-viewer-url", giaUrl);
+.dots{
+  pointer-events:auto;
+  display:flex;
+  gap:6px;
+  padding:10px 12px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:rgba(0,0,0,.28);
+  backdrop-filter: blur(10px);
+}
+.dot{
+  width:6px;
+  height:6px;
+  border-radius:999px;
+  background:rgba(243,246,250,.28);
+  border:0;
+  padding:0;
+}
+.dot.is-active{ background:rgba(243,246,250,.85); }
 
-    const btn360 = document.getElementById("btn360");
-    if (btn360 && d360Url) btn360.setAttribute("data-url", d360Url);
+/* =======================
+   Bottom strip
+   ======================= */
+.bottom{
+  position:sticky;
+  bottom:0;
+  z-index:5;
+  background: linear-gradient(to top, rgba(0,0,0,.70), rgba(0,0,0,.18));
+  padding: 10px var(--pad) calc(10px + var(--safe-bottom));
+}
 
-    // ---------- Force new-tab buttons (no overlay) ----------
-    document.addEventListener("click", (e) => {
-      const btn = e.target.closest("[data-open-newtab='1']");
-      if (!btn) return;
+.bottomInner{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+}
 
-      const url = btn.getAttribute("data-url");
-      if (!url) return;
+.twoLines{ min-width:0; }
+.l1{
+  font-size:14px;
+  letter-spacing:.2px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.l2{
+  font-size:12px;
+  color:var(--muted);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  margin-top:3px;
+}
 
-      e.preventDefault();
-      window.open(url, "_blank", "noopener");
-    });
+.openSheet{
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.06);
+  color:var(--fg);
+  padding:10px 14px;
+  border-radius:999px;
+  font-size:13px;
+  letter-spacing:.2px;
+  white-space:nowrap;
+  backdrop-filter: blur(10px);
+}
 
-    // ---------- SLIDER ----------
-    const slides = Array.from(document.querySelectorAll(".slide"));
-    const dotsWrap = document.getElementById("dots");
-    const prev = document.getElementById("prevBtn");
-    const next = document.getElementById("nextBtn");
+/* =======================
+   Slide-up Sheet (Fiche)
+   ======================= */
+.sheet[hidden]{ display:none !important; }
 
-    let index = 0;
-    let dots = [];
+.sheet{
+  position:fixed;
+  inset:0;
+  z-index:2000; /* above page UI */
+}
 
-    function setActive(i) {
-      if (!slides.length) return;
+.sheetScrim{
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,.55);
+}
 
-      const leavingVideo = slides[index]?.querySelector("video");
-      if (leavingVideo) leavingVideo.pause();
+.sheetPanel{
+  position:absolute;
+  left:0; right:0;
+  bottom:0;
+  max-height: 86vh;
+  background: var(--panel);
+  border-top-left-radius: 22px;
+  border-top-right-radius: 22px;
+  box-shadow: var(--shadow);
+  overflow:hidden;
+  transform: translateY(8px);
+  animation: rise .18s ease-out forwards;
+}
 
-      slides[index].classList.remove("is-active");
-      if (dots[index]) dots[index].classList.remove("is-active");
+@keyframes rise{ to{ transform: translateY(0); } }
 
-      index = (i + slides.length) % slides.length;
+.sheetHeader{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+  padding: calc(14px + var(--safe-top)) var(--pad) 12px;
+  border-bottom: 1px solid var(--line);
+  background: rgba(0,0,0,.22);
+  backdrop-filter: blur(14px);
+}
 
-      slides[index].classList.add("is-active");
-      if (dots[index]) dots[index].classList.add("is-active");
-    }
+.kicker{
+  font-size:11px;
+  color:var(--muted);
+  letter-spacing:.25px;
+}
 
-    if (slides.length && dotsWrap) {
-      dotsWrap.innerHTML = "";
-      slides.forEach((_, i) => {
-        const d = document.createElement("button");
-        d.type = "button";
-        d.className = "dot" + (i === 0 ? " is-active" : "");
-        d.setAttribute("aria-label", `Go to item ${i + 1}`);
-        d.addEventListener("click", () => setActive(i));
-        dotsWrap.appendChild(d);
-      });
-      dots = Array.from(dotsWrap.children);
-    }
+.sheetTitle h1{
+  margin:6px 0 8px;
+  font-size:18px;
+  font-weight:600;
+  letter-spacing:.2px;
+}
 
-    if (prev) prev.addEventListener("click", () => setActive(index - 1));
-    if (next) next.addEventListener("click", () => setActive(index + 1));
+.metaRow{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
 
-    // ---------- FICHE (SHEET) ----------
-    const openBtn = document.getElementById("openSheet");
-    const closeBtn = document.getElementById("closeSheet");
-    const sheet = document.getElementById("sheet");
-    const scrim = document.getElementById("sheetScrim");
+.pill{
+  font-size:12px;
+  color:var(--muted);
+  border:1px solid var(--line);
+  padding:6px 10px;
+  border-radius:999px;
+  background: rgba(255,255,255,.03);
+}
 
-    if (sheet && openBtn) {
-      let lastFocus = null;
+.closeSheet{
+  width:42px;
+  height:42px;
+  border-radius:999px;
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.05);
+  color:var(--fg);
+  font-size:22px;
+  line-height:1;
+}
 
-      function lockScroll(lock) {
-        document.documentElement.style.overflow = lock ? "hidden" : "";
-        document.body.style.overflow = lock ? "hidden" : "";
-      }
+.sheetBody{
+  padding: 14px var(--pad) 16px;
+  overflow:auto;
+  max-height: calc(86vh - 96px);
+  -webkit-overflow-scrolling: touch;
+}
 
-      function openSheet() {
-        lastFocus = document.activeElement;
-        sheet.hidden = false;
-        openBtn.setAttribute("aria-expanded", "true");
-        lockScroll(true);
+.card{
+  border:1px solid var(--line);
+  background: rgba(255,255,255,.03);
+  border-radius: var(--radius);
+  padding: 14px;
+  margin-bottom: 12px;
+}
 
-        const focusable = sheet.querySelector(
-          "button, [href], input, select, textarea, [tabindex]:not([tabindex='-1'])"
-        );
-        setTimeout(() => (focusable ? focusable.focus() : sheet.focus()), 0);
-      }
+.card h2{
+  margin:0 0 10px;
+  font-size:13px;
+  letter-spacing:.2px;
+  color: rgba(243,246,250,.92);
+  font-weight:600;
+}
 
-      function closeSheet() {
-        sheet.hidden = true;
-        openBtn.setAttribute("aria-expanded", "false");
-        lockScroll(false);
-        if (lastFocus && typeof lastFocus.focus === "function") lastFocus.focus();
-      }
+.cardHead{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom: 10px;
+}
 
-      openBtn.addEventListener("click", openSheet);
-      if (closeBtn) closeBtn.addEventListener("click", closeSheet);
-      if (scrim) scrim.addEventListener("click", closeSheet);
+.seg{ display:flex; gap:8px; }
 
-      document.addEventListener("keydown", (e) => {
-        if (sheet.hidden) return;
-        if (e.key === "Escape") {
-          e.preventDefault();
-          closeSheet();
-        }
-      });
-    }
+.segBtn{
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.03);
+  color:var(--muted);
+  padding:8px 10px;
+  border-radius:999px;
+  font-size:12px;
+}
+.segBtn.is-active{
+  color:var(--fg);
+  background:rgba(255,255,255,.08);
+}
 
-    // ---------- PRICING TOGGLE ----------
-    const priceEl = document.getElementById("price");
-    const priceSubEl = document.getElementById("priceSub");
-    const segBtns = Array.from(document.querySelectorAll(".segBtn"));
+.priceLine{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:12px;
+}
+.price{
+  font-size:22px;
+  font-weight:650;
+  letter-spacing:.2px;
+}
+.sub{
+  font-size:12px;
+  color:var(--muted);
+  text-align:right;
+  line-height:1.35;
+}
+.sub2{ color: var(--muted); }
 
-    function fmtUSD(n) {
-      const v = Number(n);
-      if (!Number.isFinite(v)) return "";
-      return v.toLocaleString("en-US", { style: "currency", currency: "USD" });
-    }
+.fineprint{
+  margin-top:10px;
+  font-size:12px;
+  color:var(--muted);
+}
 
-    function applyPriceFrom(btn) {
-      if (!btn || !priceEl || !priceSubEl) return;
+.spec{
+  display:grid;
+  gap:10px;
+  margin:0;
+}
+.spec div{
+  display:flex;
+  justify-content:space-between;
+  gap:14px;
+  padding:8px 0;
+  border-bottom:1px solid rgba(243,246,250,.08);
+}
+.spec div:last-child{ border-bottom:none; }
+.spec dt{
+  font-size:12px;
+  color:var(--muted);
+}
+.spec dd{
+  margin:0;
+  font-size:12px;
+  color:rgba(243,246,250,.92);
+  text-align:right;
+}
 
-      const price = btn.dataset.price;
-      const metal = btn.dataset.metal || "";
-      const weight = btn.dataset.weight || "";
-      const lead = P?.leadTimeDays ? `${P.leadTimeDays} days` : "30 days";
+.list{
+  margin:0;
+  padding-left: 16px;
+  color: rgba(243,246,250,.90);
+  font-size:12px;
+  line-height:1.55;
+}
+.list li{ margin:6px 0; }
 
-      priceEl.textContent = fmtUSD(price);
-      priceSubEl.innerHTML =
-        `${metal}${metal && weight ? " · " : ""}${weight}` +
-        `<br><span class="sub2">Lead time: ${lead}</span>`;
+.callout{
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(243,246,250,.12);
+  background: rgba(0,0,0,.22);
+  font-size:12px;
+  color: rgba(243,246,250,.88);
+  line-height:1.55;
+}
 
-      segBtns.forEach((b) => b.classList.toggle("is-active", b === btn));
-    }
+.para{
+  margin:0;
+  font-size:12px;
+  color: rgba(243,246,250,.88);
+  line-height:1.55;
+}
 
-    if (segBtns.length) {
-      segBtns.forEach((btn) => btn.addEventListener("click", () => applyPriceFrom(btn)));
-      applyPriceFrom(segBtns.find((b) => b.classList.contains("is-active")) || segBtns[0]);
-    }
+.ctaRow{
+  display:flex;
+  gap:10px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
 
-    // ---------- TECH VIEWER (IMG or IFRAME) ----------
-    const viewer = document.getElementById("techViewer");
-    if (viewer) {
-      const viewerScrim = document.getElementById("techViewerScrim");
-      const viewerClose = document.getElementById("techViewerClose");
-      const titleEl = document.getElementById("techViewerTitle");
-      const openNew = document.getElementById("techViewerOpenNew");
-      const frame = document.getElementById("techViewerFrame");
-      const img = document.getElementById("techViewerImg");
+.cta{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  text-decoration:none;
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.07);
+  color:var(--fg);
+  padding:10px 12px;
+  border-radius: 999px;
+  font-size:12px;
+  white-space:nowrap;
+}
 
-      let lastFocusViewer = null;
+.cta.ghost{
+  background:transparent;
+  color:var(--muted);
+}
 
-      function isImageUrl(url) {
-        const u = String(url || "").toLowerCase();
-        return (
-          u.endsWith(".jpg") ||
-          u.endsWith(".jpeg") ||
-          u.endsWith(".png") ||
-          u.endsWith(".webp") ||
-          u.startsWith("data:image/")
-        );
-      }
+.sheetBottomSafe{ height: calc(10px + var(--safe-bottom)); }
 
-      function lockScrollOn() {
-        document.documentElement.style.overflow = "hidden";
-        document.body.style.overflow = "hidden";
-      }
-      function lockScrollOff() {
-        document.documentElement.style.overflow = "";
-        document.body.style.overflow = "";
-      }
+/* =======================
+   Technical Viewer (Report / 360)
+   IMPORTANT: must be above sheet
+   ======================= */
+#techViewer{
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5vh 4vw;
+}
 
-      function openViewer(url, title) {
-        if (!url) return;
-        lastFocusViewer = document.activeElement;
+#techViewer[hidden]{
+  display: none !important;
+}
 
-        if (titleEl) titleEl.textContent = title || "Technical viewer";
-        if (openNew) openNew.href = url;
+#techViewer .overlayScrim{
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.72);
+}
 
-        const isImg = isImageUrl(url);
-        if (isImg) {
-          if (frame) {
-            frame.src = "";
-            frame.hidden = true;
-          }
-          if (img) {
-            img.src = url;
-            img.alt = title || "";
-            img.hidden = false;
-          }
-        } else {
-          if (img) {
-            img.src = "";
-            img.hidden = true;
-          }
-          if (frame) {
-            frame.hidden = false;
-            frame.src = url;
-          }
-        }
+#techViewer .overlayPanel{
+  position: relative;
+  width: min(960px, 92vw);
+  height: min(640px, 82vh);
+  background: #0b0d10;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 30px 80px rgba(0,0,0,.55);
+}
 
-        viewer.hidden = false;
-        lockScrollOn();
-      }
+#techViewer .overlayHeader{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
 
-      function closeViewer() {
-        viewer.hidden = true;
+#techViewer .overlayTitle{
+  font-size: 14px;
+  letter-spacing: .02em;
+  opacity: .85;
+}
 
-        if (frame) {
-          frame.src = "";
-          frame.hidden = false;
-        }
-        if (img) {
-          img.src = "";
-          img.hidden = true;
-        }
-        if (openNew) openNew.href = "#";
+#techViewer .overlayActions{
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
 
-        lockScrollOff();
+#techViewer .overlayOpenNew{
+  font-size: 12px;
+  letter-spacing: .02em;
+  opacity: .75;
+  text-decoration: none;
+  color: #fff;
+}
 
-        if (lastFocusViewer && typeof lastFocusViewer.focus === "function") {
-          lastFocusViewer.focus();
-        }
-      }
+#techViewer .overlayOpenNew:hover{ opacity: 1; }
 
-      document.addEventListener("click", (e) => {
-        const trigger = e.target.closest("[data-viewer-url]");
-        if (!trigger) return;
+#techViewer .overlayClose{
+  background: none;
+  border: 0;
+  font-size: 22px;
+  color: #fff;
+  cursor: pointer;
+}
 
-        e.preventDefault();
-        openViewer(
-          trigger.getAttribute("data-viewer-url"),
-          trigger.getAttribute("data-viewer-title") || trigger.textContent?.trim()
-        );
-      });
+#techViewer .overlayBody{
+  flex: 1;
+  position: relative;
+  overflow: auto;                 /* KEY: allow scroll on big report image */
+  -webkit-overflow-scrolling: touch;
+}
 
-      if (viewerClose) viewerClose.addEventListener("click", closeViewer);
-      if (viewerScrim) viewerScrim.addEventListener("click", closeViewer);
+#techViewer .viewerImg{
+  width: 100%;
+  height: 100%;
+  object-fit: contain;            /* KEY: whole report visible */
+  background: #0b0d10;
+  display: block;
+}
 
-      document.addEventListener("keydown", (e) => {
-        if (e.key === "Escape" && viewer && !viewer.hidden) {
-          e.preventDefault();
-          closeViewer();
-        }
-      });
-    }
-
-    // ---------- Copy MPN ----------
-    const copyBtn = document.getElementById("copyMPN");
-    if (copyBtn) {
-      copyBtn.addEventListener("click", async () => {
-        const mpn =
-          document.querySelector(".pill strong")?.textContent?.trim() || (P?.mpn || "");
-        if (!mpn) return;
-        try {
-          await navigator.clipboard.writeText(mpn);
-          copyBtn.textContent = "Copied";
-          setTimeout(() => (copyBtn.textContent = "Copy MPN"), 1200);
-        } catch {}
-      });
-    }
-  });
-})();
+#techViewer .viewerFrame{
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
