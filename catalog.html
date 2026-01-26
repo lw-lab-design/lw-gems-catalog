@@ -51,7 +51,6 @@
 
     "documentation": {
       "giaReportImage": "gia-report-LW-2026-pear-pebble-ring.jpg",
-      "xrayVideoUrl": "assets/media/LW-2026-058/xray-video.mp4",
       "diamond360Url": "https://d3at7kzws0mw3g.cloudfront.net/video/Vision360.html?d=252831-462"
     }
   }
@@ -136,12 +135,11 @@
 
             <div class="ctaRow">
               <button class="cta" id="btnGia" type="button">GIA report</button>
-              <button class="cta" id="btnXray" type="button">X-ray video</button>
               <a class="cta ghost" id="btn360" href="#" target="_blank" rel="noopener">Diamond 360°</a>
             </div>
 
             <p class="fineprint">
-              Report opens in viewer overlay. 360° opens in a new tab.
+              GIA report opens in viewer overlay (auto-fit). 360° opens in a new tab.
             </p>
           </section>
 
@@ -158,7 +156,7 @@
         <header class="overlayHeader">
           <div class="overlayTitle" id="techViewerTitle">—</div>
           <div class="overlayActions">
-            <a class="overlayOpenNew" id="techViewerOpenNew" href="#" target="_blank" rel="noopener" hidden>Open in new tab</a>
+            <a class="overlayOpenNew" id="techViewerOpenNew" href="#" target="_blank" rel="noopener">Open in new tab</a>
             <button class="overlayClose" id="techViewerClose" type="button" aria-label="Close">×</button>
           </div>
         </header>
@@ -166,7 +164,6 @@
         <div class="overlayBody">
           <iframe class="viewerFrame" id="techViewerFrame" title="Technical frame" hidden loading="lazy"></iframe>
           <img class="viewerImg" id="techViewerImg" alt="" hidden loading="eager" decoding="async" />
-          <video class="viewerVid" id="techViewerVideo" hidden controls playsinline></video>
         </div>
       </div>
     </section>
